@@ -69,31 +69,7 @@ const CamerBottomSheet = (props) => {
         type: image.mime,
         name: image.path.substring(image.path.lastIndexOf('/') + 1),
       };
-      // if(nav_place === 'Account_Detail')
-      // {
-      //   dispatch(setUserImage(JSON.parse(image.path)))
-      // }
-      // else if(nav_place === 'License_Front')
-      // {
-      //   dispatch(setLicenseFront(image.path))
-      // }
-      // else if(nav_place === 'License_Back')
-      // {
-      //   dispatch(setLicenseBack(image.path))
-      // }
-      // else if(nav_place === 'CNIC_Front')
-      // {
-      //   dispatch(setCNICFront(image.path))
-      // }
-      // else if(nav_place === 'CNIC_Back')
-      // {
-      //   dispatch(setCNICBack(image.path))
-      // }
-      // else if(nav_place === 'Vehicle_owernship')
-      // {
-      //   dispatch(setOwnership(image.path))
-      // }
-      // else{}
+ 
       Uploadpic(newfile);
     });
   };
@@ -190,7 +166,7 @@ const CamerBottomSheet = (props) => {
    </View>   
 
         <View style={{justifyContent:'center',marginTop:hp(3)}}>
-          <TouchableOpacity onPress={props.takePhotoFromCamera}
+          <TouchableOpacity onPress={takePhotoFromCamera}
           style={styles.modaltextview}
           >
         <Ionicons name="camera" size={30} color={"#707070"} />
@@ -202,7 +178,7 @@ const CamerBottomSheet = (props) => {
     <Text style={styles.optiontext}>Upload from Camera</Text>
     </TouchableOpacity>
 <View style={{borderBottomColor:'#DCDCDC',borderBottomWidth:1,width:wp(85),alignSelf:'center',marginBottom:hp(2),marginTop:hp(2)}}></View>
-    <TouchableOpacity  onPress={props.choosePhotoFromLibrary}
+    <TouchableOpacity  onPress={choosePhotoFromLibrary}
     style={styles.modaltextview}
     >
         <Ionicons name="image" size={30} color={"#707070"} />

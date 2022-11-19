@@ -66,13 +66,13 @@ const Profile = ({navigation}) => {
         
                     <View style={{marginTop:hp(28),
                     marginBottom:hp(2)}}>
-               <SettingsMenu
+               {/* <SettingsMenu
        label={'Payment Details'}
-       labelPress={()=>navigation.navigate('UpdatePaymentDetail')}
-       />
+       labelPress={()=>navigation.navigate('ViewPaymentDetail')}
+       /> */}
                   <SettingsMenu
        label={'Vehicle Details'}
-       labelPress={()=>navigation.navigate('UpdateVehicleDetail')}
+       labelPress={()=>navigation.navigate('ViewVehicleDetail')}
        />
                   <SettingsMenu
        label={'Document Details'}

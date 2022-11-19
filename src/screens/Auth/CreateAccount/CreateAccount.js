@@ -88,7 +88,7 @@ const CreateAccount = ({navigation, route}) => {
             onPress={() => {
               dispatch(setTopTabDriver(top_tab_driver))
               dispatch(setTopTabVehicle(!top_tab_vehicle))
-              dispatch(setTopTabPayment(!top_tab_payment))
+              //dispatch(setTopTabPayment(!top_tab_payment))
               dispatch(setTopTabDocument(!top_tab_document))
 
               // setDriver(true),
@@ -102,7 +102,7 @@ const CreateAccount = ({navigation, route}) => {
             onPress={() => {
               dispatch(setTopTabDriver(!top_tab_driver))
               dispatch(setTopTabVehicle(top_tab_vehicle))
-              dispatch(setTopTabPayment(!top_tab_payment))
+              //dispatch(setTopTabPayment(!top_tab_payment))
               dispatch(setTopTabDocument(!top_tab_document))
               // setDriver(false),
               //   setVehicle(true),
@@ -111,7 +111,7 @@ const CreateAccount = ({navigation, route}) => {
             }}>
             <CustomTopTabs title={'Vehicle'} width={'20%'} state={!top_tab_vehicle} />
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               //dispatch(setTopTabPayment(!top_tab_payment))
               setDriver(false),
@@ -125,13 +125,13 @@ const CreateAccount = ({navigation, route}) => {
               //color={() => setLongterm(true)}
               state={!top_tab_payment}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             onPress={() => {
               //dispatch(setTopTabDocument(!top_tab_document))
               setDriver(false),
                 setVehicle(false),
-                setPayment(false),
+                //setPayment(false),
                 setDocuments(true);
             }}>
             <CustomTopTabs
@@ -146,9 +146,11 @@ const CreateAccount = ({navigation, route}) => {
  <AccountDetail/>
         ) : top_tab_vehicle ? (
 <VehicleDetail/>
-        ) : top_tab_payment ? (
-    <PaymentDetail/>
-        ) : top_tab_document ? (
+        ) 
+    //     : top_tab_payment ? (
+    // <PaymentDetail/>
+    //     )
+         : top_tab_document ? (
    <DocumentsDetail/>
         )
         : null}

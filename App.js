@@ -25,6 +25,8 @@ import UpdateVehicleDetail from './src/screens/StackScreens/UpdateProfile/Update
 import Notification from './src/screens/StackScreens/Notification/Notification';
 import TripList from './src/screens/StackScreens/Trip/TripList/TripList';
 import TripDetail from './src/screens/StackScreens/Trip/TripDetail/TripDetail';
+import ViewPaymentDetail from './src/screens/StackScreens/UpdateProfile/ViewPayment';
+import ViewVehicleDetail from './src/screens/StackScreens/UpdateProfile/ViewVehicleDetail';
 
 const Stack = createNativeStackNavigator();
 function App() {
@@ -119,6 +121,14 @@ function App() {
         headerShown: false,
         }} />
                  <Stack.Screen name="TripDetail" component={TripDetail}
+        options={{
+        headerShown: false,
+        }} />
+    <Stack.Screen name="ViewPaymentDetail" component={ViewPaymentDetail}
+        options={{
+        headerShown: false,
+        }} />
+       <Stack.Screen name="ViewVehicleDetail" component={ViewVehicleDetail}
         options={{
         headerShown: false,
         }} />

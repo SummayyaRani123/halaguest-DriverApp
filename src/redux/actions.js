@@ -1,6 +1,5 @@
   ////////////////APP STATES/////////////////////
 export const SET_HOTEL_TYPE = 'SET_HOTEL_TYPE';
-export const SET_PHONE_NO = 'SET_PHONE_NO';
 export const SET_DISPATCHER = 'SET_DISPATCHER';
 export const SET_DISPATCHER_ID = 'SET_DISPATCHER_ID';
 
@@ -23,6 +22,9 @@ export const SET_CAR_CONDITION_ID = 'SET_CAR_CONDITION_ID';
 export const SET_CAR_TYPE = 'SET_CAR_TYPE';
 export const SET_CAR_TYPE_ID = 'SET_CAR_TYPE_ID';
 export const SET_CAR_MAKE = 'SET_CAR_MAKE';
+export const SET_CAR_MAKE_ID = 'SET_CAR_MAKE_ID';
+export const SET_CAR_MODAL = 'SET_CAR_MODAL';
+export const SET_CAR_MODAL_ID = 'SET_CAR_MODAL_ID';
 export const SET_CAR_YEAR = 'SET_CAR_YEAR';
 
 //////////////////IMAGES/////////////////
@@ -66,8 +68,16 @@ export const setTopTabDocument = top_tab_document => dispatch => {
 };
   ////////////////APP STATES/////////////////////
 
+  ///////////////User Login Info STATE AND FUNCTION ///////////////
+    export const SET_LOGIN_USER = 'SET_LOGIN_USER';
+    export const SET_PHONE_NO = 'SET_PHONE_NO';
 
-  ///////////////User Login Info///////////////
+  export const setLoginUser = login_user_id => dispatch => {
+    dispatch({
+        type: SET_LOGIN_USER,
+        payload: login_user_id,
+    });
+};
 export const setPhoneNumber = phone_no => dispatch => {
     dispatch({
         type: SET_PHONE_NO,
@@ -157,6 +167,24 @@ export const setCarMake = car_make => dispatch => {
         payload: car_make,
     });
 };
+export const setCarMakeId = car_make_id => dispatch => {
+    dispatch({
+        type: SET_CAR_MAKE_ID,
+        payload: car_make_id,
+    });
+};
+export const setCarModal = car_modal => dispatch => {
+    dispatch({
+        type: SET_CAR_MODAL,
+        payload: car_modal,
+    });
+};
+export const setCarModalId = car_modal_id => dispatch => {
+    dispatch({
+        type: SET_CAR_MODAL_ID,
+        payload: car_modal_id,
+    });
+};
 export const setCarYear = car_year => dispatch => {
     dispatch({
         type: SET_CAR_YEAR,
@@ -209,5 +237,50 @@ export const setNavPlace = nav_place => dispatch => {
     dispatch({
         type: SET_NAV_PLACE,
         payload: nav_place,
+    });
+};
+
+  ////////////////Locations STATES and Function/////////////////////
+  export const SET_COUNTRY_ID = 'SET_COUNTRY_ID';
+  export const SET_COUNTRY_NAME = 'SET_COUNTRY_NAME';
+  export const SET_STATE_ID = 'SET_STATE_ID';
+  export const SET_STATE_NAME = 'SET_STATE_NAME';
+  export const SET_CITY_ID = 'SET_CITY_ID';
+  export const SET_CITY_NAME = 'SET_CITY_NAME';
+
+  export const setCountryName = country_name => dispatch => {
+    dispatch({
+        type: SET_COUNTRY_NAME,
+        payload: country_name,
+    });
+};
+export const setCountryId = country_id => dispatch => {
+    dispatch({
+        type: SET_COUNTRY_ID,
+        payload: country_id,
+    });
+};
+export const setStateName = state_name => dispatch => {
+    dispatch({
+        type: SET_STATE_NAME,
+        payload: state_name,
+    });
+};
+export const setStateId = state_id => dispatch => {
+    dispatch({
+        type: SET_STATE_ID,
+        payload: state_id,
+    });
+};
+export const setCityName = city_name => dispatch => {
+    dispatch({
+        type: SET_CITY_NAME,
+        payload: city_name,
+    });
+};
+export const setCityId = city_id => dispatch => {
+    dispatch({
+        type: SET_CITY_ID,
+        payload: city_id,
     });
 };

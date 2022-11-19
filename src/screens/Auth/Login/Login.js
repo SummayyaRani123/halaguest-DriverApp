@@ -1,30 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,TextInput,
-  Image, View, Text, TouchableOpacity, Button,StatusBar
+  Image, View, Text, TouchableOpacity,StatusBar
 } from 'react-native';
 
 ////////////paper papkage///////////////
-import { Checkbox } from 'react-native-paper';
+import { Checkbox,Snackbar } from 'react-native-paper';
 
 ///////////////////app components////////////////
 import CustomButtonhere from '../../../components/Button/CustomButton';
 
+/////////////////country picker/////////////
 import CountryPicker from "react-native-country-picker-modal"
-import Icon from 'react-native-vector-icons/MaterialIcons';
-
 
 //////////////////app styles///////////
 import styles from './styles';
 import Authtextstyles from '../../../styles/GlobalStyles/Authtextstyles';
-import Authlaststyles from '../../../styles/GlobalStyles/Authlaststyles';
 import Logostyles from '../../../styles/GlobalStyles/Logostyles';
 import Colors from '../../../utills/Colors';
-
-
-////////////////////redux////////////
-import { useSelector, useDispatch } from 'react-redux';
-import { setPhoneNumber } from '../../../redux/actions';
 
 /////////////////////app images///////////////////
 import { appImages } from '../../../constant/images';
@@ -32,18 +25,34 @@ import { widthPercentageToDP as wp ,heightPercentageToDP as hp} from 'react-nati
 
 const Login = ({ navigation }) => {
 
-    /////////////redux states///////
-    const { HotelTypes} = useSelector(state => state.userReducer);
-    const dispatch = useDispatch();
-
     ///////////////////checkbox state///////////////////
     const [checked, setChecked] = React.useState(false);
+
+       /////////button states/////////////
+ const [visible, setVisible] = useState(false);
+ const [snackbarValue, setsnackbarValue] = useState({value: '', color: ''});
+ const onDismissSnackBar = () => setVisible(false);
 
     ///////////////country picker states//////////////////////
   const [CountryPickerView, setCountryPickerView] = useState(false);
   const [countryCode, setCountryCode] = useState('92');
-  const [Phoneno, setPhoneno] = useState('92');
-  const [number, setnumber] = useState();
+  const [number, setnumber] = useState('');
+
+  //////////////////////// API forms validations////////////////////////
+  const LoginValidation = async () => {
+    // input validation
+    if (number == '') {
+      setsnackbarValue({value: 'Please Enter Phone Number', color: 'red'});
+      setVisible('true');
+    } 
+   else if (checked == false) {
+      setsnackbarValue({value: 'Please Checked the Terms and Condition', color: 'red'});
+      setVisible('true');
+    } 
+    else {
+      navigation.navigate('Verification',{Phonenumber:countryCode+number})
+    }
+  };
 
   useEffect(() => {
 
@@ -137,9 +146,7 @@ const Login = ({ navigation }) => {
             widthset={78}
             topDistance={32}
             onPress={() => 
-             {
-              dispatch(setPhoneNumber(number)),
-              navigation.navigate('Verification',{Phonenumber:number})}
+             {LoginValidation()}
             }
           />
                      {/* <View style={Authlaststyles.lasttextview}>
@@ -148,7 +155,19 @@ const Login = ({ navigation }) => {
         <Text style={Authlaststyles.lasttext}>Sign Up</Text>
         </TouchableOpacity>
       </View> */}
-
+              <Snackbar
+          duration={500}
+          visible={visible}
+          onDismiss={onDismissSnackBar}
+          style={{
+            backgroundColor: snackbarValue.color,
+            marginBottom:hp(15),
+            zIndex: 999,
+            alignSelf:"center",
+            marginLeft:wp(15)
+          }}>
+          {snackbarValue.value}
+        </Snackbar>
     </SafeAreaView>
   )
 };

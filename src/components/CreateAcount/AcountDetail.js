@@ -9,18 +9,27 @@ import {
   TextInput,
 } from 'react-native';
 
+/////////////////navigation//////////////
+import { useIsFocused } from '@react-navigation/native';
+
 ////////////paper papkage///////////////
 import {RadioButton,Snackbar} from 'react-native-paper';
 
 //////////////////////app components///////////////
 import CamerBottomSheet from '../CameraBottomSheet/CameraBottomSheet';
 import CustomButtonhere from '../Button/CustomButton';
-import Dispatchers from '../Dropdowns/Dispatchers';
 
+////////////////Custom DropDowns///////////
+import Dispatchers from '../Dropdowns/Dispatchers';
+import CountryDropDown from '../Dropdowns/Location/Country';
+import StateDropDown from '../Dropdowns/Location/State';
+import CityDropDown from '../Dropdowns/Location/City';
 
 ////////////////////redux////////////
 import {useSelector, useDispatch} from 'react-redux';
-import { setNavPlace,setTopTabDriver,setTopTabVehicle,setDriverSubmitId } from '../../redux/actions';
+import { setNavPlace,setTopTabDriver,setTopTabVehicle,setDriverSubmitId,
+setCountryName,setStateName,setCityName
+} from '../../redux/actions';
 ////////////////api////////////////
 import axios from 'axios';
 import { BASE_URL } from '../../utills/ApiRootUrl';
@@ -40,11 +49,18 @@ import Inputstyles from '../../styles/GlobalStyles/Inputstyles';
 /////////////////app images///////////
 import { appImages } from '../../constant/images';
 
+// Import Map and Marker
+import Geocoder from 'react-native-geocoding';
+import Geolocation from '@react-native-community/geolocation';
+import { MapKeyApi } from '../../utills/MapKey';
+
 const AccountDetail = ({navigation}) => {
 
-  /////////////////////////redux///////////////////
+      ////////////isfocused//////////
+      const isfocussed = useIsFocused()
 
-  const {hoteltype, phone_no,user_image ,top_tab_driver,top_tab_vehicle,dispatcher,dispatcher_id
+  /////////////////////////redux///////////////////
+  const {login_user_id, phone_no,user_image ,country_name,state_name,city_name,dispatcher,dispatcher_id
   } =
     useSelector(state => state.userReducer);
   const dispatch = useDispatch();
@@ -54,9 +70,13 @@ const AccountDetail = ({navigation}) => {
 
   //////////////link dropdown////////////////
   const refddRBSheet = useRef();
+  const refCountryddRBSheet=useRef();
+  const refStateddRBSheet=useRef();
+  const refCityddRBSheet=useRef();
   
   //camera and imagepicker
   const refRBSheet = useRef();
+
   //Modal States
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -76,14 +96,9 @@ const AccountDetail = ({navigation}) => {
  const onDismissSnackBar = () => setVisible(false);
 
   ///////////////API data states////////////////////
-  //////////////////Account////////////////
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [gender, setGender] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
   const [zipcode, setZipcode] = useState('');
-  const [country, setCountry] =useState('');
   const [street_address, setStreet_address] = useState('');
 
  ///////////email//////////////////
@@ -101,20 +116,22 @@ const AccountDetail = ({navigation}) => {
 
   //////////////////////Api Calling/////////////////
   const CreateAcount = async () => {
+    var user= await AsyncStorage.getItem('Userid')
     var date = new Date();
-    console.log('userid:', date, checked,phone_no,BASE_URL + 'api/driver/createDriver');
+    console.log('userid:', date, checked,phone_no,user,city_name);
 
     axios({
-      method: 'POST',
-      url: BASE_URL + 'api/driver/createDriver',
+      method: 'PUT',
+      url: BASE_URL + 'api/driver/updateDriver',
       data: {
-       img: user_image,
+        _id:login_user_id,
+        img: user_image,
         email: email,
         gender:checked,
-        city: city,
-        state: state,
+        country: country_name,
+        city: city_name===''?state_name:city_name,
+        state: state_name,
         zip_code: zipcode,
-        country: country,
         street_address: street_address,
         name: name,
         phoneNo: phone_no,
@@ -122,14 +139,17 @@ const AccountDetail = ({navigation}) => {
         dispacher_id: dispatcher_id,
         status: 'block',
         device_token: '354ref',
+        // driver_location:address,
+        // driver_lat: pinlat,
+        // driver_log: pinlog 
         driver_location: 'Pir Mehr Ali Shah Arid Agriculture University - PMAS AAUR, Shamsabad, Muree، Road, Punjab، Rawalpindi, 46000',
         driver_lat: '33.601920',
-        driver_log: '73.038080' 
+        driver_log: '73.038080',
       },
     })
       .then(function (response) {
         console.log('response', JSON.stringify(response.data));
-        dispatch(setDriverSubmitId(response.data.data._id))
+        dispatch(setDriverSubmitId(response.data._id))
             setloading(0);
           setdisable(0);
         dispatch(setTopTabDriver(false))
@@ -141,7 +161,62 @@ const AccountDetail = ({navigation}) => {
       });
   };
 
-  useEffect(() => {}, []);
+///////////////////map states//////////
+    const [eror, setError]=useState()
+const [region, setRegion] = useState();
+const [marker, setMarker] = useState('');
+const [pinlat, setPinLat] = useState();
+const [pinlog, setPinLog] = useState();
+const [address, setAddress] = useState();
+
+/////////////user current location////////////////
+const GetcurrLocation=()=>{
+  Geocoder.init(MapKeyApi); 
+  Geolocation.getCurrentPosition(
+                  (position) => {
+                    setPinLat(position.coords.latitude)
+                    setPinLog(position.coords.longitude)
+                  setRegion({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    latitudeDelta: 0.0462,
+                    longitudeDelta: 0.0261,
+                  });
+                  console.log('map regions:',region)
+                  setMarker({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                  });
+                      Geocoder.from(position.coords.latitude,
+                         position.coords.longitude)
+                          .then(json => {
+                              console.log(json);
+      var addressComponent = json.results[0].address_components;
+       setAddress(addressComponent)
+                          })
+                         
+                          .catch(error => console.warn(error));
+                  },
+                  (error) => {
+                      // See error code charts below.
+                  
+                              setError(error.message)
+                     
+                          console.log(error.code, error.message);
+                  },
+                  {
+                      enableHighAccuracy: false,
+                      timeout: 10000,
+                      maximumAge: 100000
+                  }
+              );
+}
+useEffect(() => {
+  if (isfocussed) {
+    GetcurrLocation()
+}
+console.log('locatrion coord Here',pinlat,pinlog,address)
+  },[isfocussed]);
 
   //////////////////////// API forms validations////////////////////////
   const AcountValidation = async () => {
@@ -155,22 +230,22 @@ const AccountDetail = ({navigation}) => {
     } else if (!handleValidEmail(email)) {
       setsnackbarValue({value: 'Incorrect Email', color: 'red'});
       setVisible('true');
-    } else if (city == '') {
+    }   else if (country_name == '') {
+      setsnackbarValue({value: 'Please Enter Country', color: 'red'});
+      setVisible('true');
+    }    else if (state_name == '') {
+      setsnackbarValue({value: 'Please Enter State', color: 'red'});
+      setVisible('true');
+    } else if (city_name == '') {
       setsnackbarValue({value: 'Please Enter City', color: 'red'});
       setVisible('true');
     } 
-    else if (state == '') {
-      setsnackbarValue({value: 'Please Enter State', color: 'red'});
-      setVisible('true');
-    }
+
     else if (zipcode == '') {
       setsnackbarValue({value: 'Please Enter Zipcode', color: 'red'});
       setVisible('true');
     }
-    else if (country == '') {
-      setsnackbarValue({value: 'Please Enter Country', color: 'red'});
-      setVisible('true');
-    }
+ 
     else if (street_address == '') {
       setsnackbarValue({value: 'Please Enter Street Address', color: 'red'});
       setVisible('true');
@@ -244,7 +319,7 @@ const AccountDetail = ({navigation}) => {
                   onChangeText={setEmail}
                   returnKeyType={'next'}
                   onSubmitEditing={() => {
-                    ref_input3.current.focus();
+                    ref_input5.current.focus();
                   }}
                   blurOnSubmit={false}
                   placeholderTextColor={Colors.inputtextcolor}
@@ -257,49 +332,49 @@ const AccountDetail = ({navigation}) => {
               <TouchableOpacity onPress={()=> refddRBSheet.current.open()} >
               <View style={Inputstyles.action}>
                 <TextInput
-                  ref={ref_input2}
                   value={dispatcher}
-                  //onChangeText={setEmail}
-                  returnKeyType={'next'}
-                  onSubmitEditing={() => {
-                    ref_input3.current.focus();
-                  }}
-                  blurOnSubmit={false}
                   placeholderTextColor={Colors.inputtextcolor}
-              
                   style={Inputstyles.input}
                   editable={false}
                 />
               </View>
               </TouchableOpacity>
-              <Text style={Inputstyles.inputtoptext}>City</Text>
-              <View style={Inputstyles.action}>
-                <TextInput
-                  ref={ref_input3}
-                  onChangeText={setCity}
-                  returnKeyType={'next'}
-                  onSubmitEditing={() => {
-                    ref_input4.current.focus();
-                  }}
-                  blurOnSubmit={false}
-                  placeholderTextColor={Colors.inputtextcolor}
-                  style={Inputstyles.input}
-                />
-              </View>
-              <Text style={Inputstyles.inputtoptext}>State</Text>
-              <View style={Inputstyles.action}>
-                <TextInput
-                  ref={ref_input4}
-                  onChangeText={setState}
-                  returnKeyType={'next'}
-                  onSubmitEditing={() => {
-                    ref_input5.current.focus();
-                  }}
-                  blurOnSubmit={false}
-                  placeholderTextColor={Colors.inputtextcolor}
-                  style={Inputstyles.input}
-                />
-              </View>
+              <Text style={Inputstyles.inputtoptext}>Country</Text>
+          <TouchableOpacity
+                onPress={() => refCountryddRBSheet.current.open()}>
+          <View style={Inputstyles.action}>
+            <TextInput
+                  value={country_name}
+              placeholderTextColor={Colors.inputtextcolor}
+              style={Inputstyles.input}
+              editable={false}
+            />
+          </View>
+          </TouchableOpacity>
+          <Text style={Inputstyles.inputtoptext}>State</Text>
+          <TouchableOpacity
+                onPress={() => refStateddRBSheet.current.open()}>
+          <View style={Inputstyles.action}>
+            <TextInput
+                 value={state_name}
+              placeholderTextColor={Colors.inputtextcolor}
+              style={Inputstyles.input}
+              editable={false}
+            />
+          </View>
+          </TouchableOpacity>
+          <Text style={Inputstyles.inputtoptext}>City</Text>
+          <TouchableOpacity
+                onPress={() => refCityddRBSheet.current.open()}>
+          <View style={Inputstyles.action}>
+            <TextInput
+                  value={city_name}
+              placeholderTextColor={Colors.inputtextcolor}
+              style={Inputstyles.input}
+              editable={false}
+            />
+          </View>
+        </TouchableOpacity>
               <Text style={Inputstyles.inputtoptext}>Zip_Code</Text>
               <View style={Inputstyles.action}>
                 <TextInput
@@ -312,26 +387,14 @@ const AccountDetail = ({navigation}) => {
                   blurOnSubmit={false}
                   placeholderTextColor={Colors.inputtextcolor}
                   style={Inputstyles.input}
+                  keyboardType={'number-pad'}
                 />
               </View>
-              <Text style={Inputstyles.inputtoptext}>Country</Text>
-              <View style={Inputstyles.action}>
-                <TextInput
-                  ref={ref_input6}
-                  onChangeText={setCountry}
-                  returnKeyType={'next'}
-                  onSubmitEditing={() => {
-                    ref_input7.current.focus();
-                  }}
-                  blurOnSubmit={false}
-                  placeholderTextColor={Colors.inputtextcolor}
-                  style={Inputstyles.input}
-                />
-              </View>
+      
               <Text style={Inputstyles.inputtoptext}>Street Address</Text>
               <View style={Inputstyles.action}>
                 <TextInput
-                  ref={ref_input7}
+                  ref={ref_input6}
                   onChangeText={setStreet_address}
                   placeholderTextColor={Colors.inputtextcolor}
                   style={Inputstyles.input}
@@ -402,7 +465,18 @@ const AccountDetail = ({navigation}) => {
         <Dispatchers
           refRBSheet={refddRBSheet}
           onClose={() => refddRBSheet.current.close()}
-          title={'From Gallery'}
+        />
+                <CountryDropDown
+          refRBSheet={refCountryddRBSheet}
+          onClose={() => refCountryddRBSheet.current.close()}
+        />
+                         <StateDropDown
+          refRBSheet={refStateddRBSheet}
+          onClose={() => refStateddRBSheet.current.close()}
+        />
+                         <CityDropDown
+          refRBSheet={refCityddRBSheet}
+          onClose={() => refCityddRBSheet.current.close()}
         />
       </SafeAreaView>
     </ScrollView>

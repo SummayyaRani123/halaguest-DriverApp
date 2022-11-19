@@ -2,14 +2,24 @@ import React, { useEffect, useState } from 'react';
 import {
     Image, View, Text, SafeAreaView,ScrollView,TouchableOpacity,
 } from 'react-native';
+
+///////////////app code fields/////////////
+import {
+  CodeField,
+  Cursor,
+  useBlurOnFulfill,
+  useClearByFocusCell,
+} from 'react-native-confirmation-code-field';
+
+///////////////timer/////////////////////
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+
 ///////////////app images//////////////
 import { appImages } from '../../../constant/images';
 
 /////////////////app components/////////////////
 import CustomButtonhere from '../../../components/Button/CustomButton';
-
-//////////////app icons/////////////
-import Feath from 'react-native-vector-icons/Feather';
+import CustomModal from '../../../components/Modal/CustomModal';
 
 /////////////////////app styles/////////////////////
 import Authtextstyles from '../../../styles/GlobalStyles/Authtextstyles';
@@ -19,16 +29,14 @@ import Colors from '../../../utills/Colors';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp }
   from 'react-native-responsive-screen';
 
-///////////////app code fields/////////////
-import {
-    CodeField,
-    Cursor,
-    useBlurOnFulfill,
-    useClearByFocusCell,
-  } from 'react-native-confirmation-code-field';
+////////////////////redux////////////
+import { useSelector, useDispatch } from 'react-redux';
+import { setPhoneNumber,setLoginUser } from '../../../redux/actions';
 
-  ///////////////timer/////////////////////
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+////////////////api////////////////
+import axios from 'axios';
+import { BASE_URL } from '../../../utills/ApiRootUrl';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Verification = ({ navigation,route }) => {
@@ -36,6 +44,13 @@ const Verification = ({ navigation,route }) => {
 
     /////////////previous data state///////////////
     const [predata] = useState(route.params);
+
+       /////////////redux states///////
+       const { phone_no} = useSelector(state => state.userReducer);
+       const dispatch = useDispatch();  
+
+        ///////////////Modal States///////////////
+        const [modalVisible, setModalVisible] = useState(false);
 
   /////////////timer state///////////////
   const [disabletimer, setdisableTimer] = useState(false);
@@ -83,9 +98,45 @@ const Verification = ({ navigation,route }) => {
     //setValue(route.params)
   }
 
-  useEffect(() => {
 
-    getcode()
+  //////////////////////Api Calling Login/////////////////
+  const CheckLogin = async () => {
+    console.log('userid:',BASE_URL + 'api/phoneNo/logins', predata.Phonenumber);
+axios({
+  method: 'POST',
+  url: BASE_URL + 'api/phoneNo/logins',
+  data: {
+    table_name: 'driver',
+    phoneno: predata.Phonenumber,
+    device_token: 'dfdf3434' 
+  },
+})
+  .then(async function (response) {
+    console.log('response in driver login', JSON.stringify(response.data));
+    if(response.data.message === "driver Exists" && response.data.data.doc_id.length>0)
+    {
+      dispatch(setPhoneNumber(response.data.data.phoneno))
+      dispatch(setLoginUser(response.data.data._id))
+      await AsyncStorage.setItem('Userid',response.data.data._id);
+      //await AsyncStorage.setItem('Payment_id',response.data.data.payment_detail_id._id);
+      await AsyncStorage.setItem('Vehicle_id',response.data.data.vehicle_detail_id[0]._id);
+      await AsyncStorage.setItem('Document_id',response.data.data.doc_id[0]._id);
+      setModalVisible(true)
+    }
+    
+    else {
+      dispatch(setPhoneNumber(response.data.data.phoneno))
+      dispatch(setLoginUser(response.data.data._id))
+     await AsyncStorage.setItem('Userid',response.data.data._id);
+     navigation.navigate('CreateAccount',{navplace:'CreateAccount'})
+    }
+
+  })
+  .catch(function (error) {
+    console.log('error', error);
+  });
+};
+  useEffect(() => {
   
   },[]);
   return (
@@ -181,13 +232,21 @@ disabled={disabletimer}
           <CustomButtonhere
             title={'Verify'}
             widthset={'70%'}
-            topDistance={0}
+            topDistance={5}
             //onPress={() => verifyno()}
-            onPress={()=> 
-              navigation.navigate('BottomTab')
-                  //navigation.navigate('CreateAccount',predata)
-                }
+            onPress={()=>   CheckLogin()   }
           /></View>
+          <View>
+          <CustomModal 
+                modalVisible={modalVisible}
+                CloseModal={() => setModalVisible(false)}
+                Icon={appImages.CheckCircle}
+                text={'Account Verified Successfully'}
+                leftbuttontext={'CANCEL'}
+                rightbuttontext={'OK'}
+ onPress={()=> {setModalVisible(false),navigation.navigate('BottomTab')}}
+                /> 
+          </View>
 
 </SafeAreaView>
 

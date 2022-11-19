@@ -123,11 +123,6 @@ const PaymentDetail = ({navigation}) => {
       setsnackbarValue({value: 'Please Enter Account Number', color: 'red'});
       setVisible('true');
     } 
-    else if (account_number.length != 16) {
-      setsnackbarValue({value: "Please Enter 16 digit Valid Card", color: 'red'});
-      setVisible('true');
-    }
-
     // else if (Expiry=='') {
     //   setsnackbarValue({value: "Please Enter month / Year", color: 'red'});
     //   setVisible('true');
@@ -136,10 +131,6 @@ const PaymentDetail = ({navigation}) => {
     setsnackbarValue({value: "Please Enter CVV", color: 'red'});
     setVisible('true');
 
-    }
-    else if (CVV.length != 3) {
-      setsnackbarValue({value: "Please Enter 3 digit Valid CVV", color: 'red'});
-      setVisible('true');
     }
     else if (iban=='') {
       setsnackbarValue({value: "Please Enter IBAN", color: 'red'});

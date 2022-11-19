@@ -1,4 +1,8 @@
 import {
+  ////////////////APP LOGIN STATES/////////////////////
+  SET_LOGIN_USER,
+  SET_PHONE_NO,
+
   ////////////////APP TOP TAB STATES/////////////////////
   SET_TOP_TAB_DRIVER,
   SET_TOP_TAB_VEHICLE,
@@ -7,15 +11,14 @@ import {
 
   ////////////////APP STATES/////////////////////
   SET_HOTEL_TYPE,
-  SET_PHONE_NO,
   SET_DISPATCHER,
   SET_DISPATCHER_ID,
 
   ////////////////////Account Data Submition////////////////
   SET_DRIVER_SUBMIT_ID,
-SET_VEHICLE_SUBMIT_ID,
- SET_PAYMENT_SUBMIT_ID ,
- SET_DOCUMENT_SUBMIT_ID ,
+  SET_VEHICLE_SUBMIT_ID,
+  SET_PAYMENT_SUBMIT_ID,
+  SET_DOCUMENT_SUBMIT_ID,
 
   ////////////VEHICLE////////////
   SET_CAR_CONDITION,
@@ -23,6 +26,9 @@ SET_VEHICLE_SUBMIT_ID,
   SET_CAR_TYPE,
   SET_CAR_TYPE_ID,
   SET_CAR_MAKE,
+  SET_CAR_MAKE_ID,
+  SET_CAR_MODAL,
+  SET_CAR_MODAL_ID,
   SET_CAR_YEAR,
 
   ///////////////IMAGES//////////////
@@ -35,12 +41,24 @@ SET_VEHICLE_SUBMIT_ID,
 
   /////////////////NAV PLACE///////////////
   SET_NAV_PLACE,
+
+  ////////////////Locations STATES/////////////////////
+  SET_COUNTRY_NAME,
+  SET_COUNTRY_ID,
+  SET_STATE_NAME,
+  SET_STATE_ID,
+  SET_CITY_NAME,
+  SET_CITY_ID,
 } from './actions';
 
 const initialState = {
+  ////////////////APP LOGIN STATES/////////////////////
+  login_user_id: '',
+  phone_no: '',
+
   ////////////////APP TOP TAB STATES/////////////////////
   top_tab_driver: true,
-  top_tab_vehicle:true,
+  top_tab_vehicle: true,
   top_tab_payment: true,
   top_tab_document: true,
 
@@ -50,18 +68,21 @@ const initialState = {
   dispatcher: '',
   dispatcher_id: '',
 
-    ////////////////////Account Data Submition////////////////
-    driver_submit_id:'',
-    vehicle_submit_id:'',
-    payment_submit_id:'',
-    document_submit_id:'',
+  ////////////////////Account Data Submition////////////////
+  driver_submit_id: '',
+  vehicle_submit_id: '',
+  payment_submit_id: '',
+  document_submit_id: '',
 
   ////////////VEHICLE////////////
   condition: '',
-  condition_id :'',
+  condition_id: '',
   car_type: '',
-  car_type_id:'',
+  car_type_id: '',
   car_make: '',
+  car_make_id: '',
+  car_modal: '',
+  car_modal_id: '',
   car_year: '',
 
   ////////////////IMAGES////////////
@@ -74,10 +95,23 @@ const initialState = {
 
   //////////////////NAV PLACE//////////////
   nav_place: '',
+
+  ////////////////Locations STATES/////////////////////
+  country_name: '',
+  country_id: '',
+  state_name: '',
+  state_id: '',
+  city_name: '',
+  city_id: '',
 };
 
 function userReducer(state = initialState, action) {
   switch (action.type) {
+    ////////////////APP LOGIN STATES/////////////////////
+    case SET_LOGIN_USER:
+      return {...state, login_user_id: action.payload};
+    case SET_PHONE_NO:
+      return {...state, phone_no: action.payload};
 
     ////////////////APP TOP TAB STATES/////////////////////
     case SET_TOP_TAB_DRIVER:
@@ -92,34 +126,34 @@ function userReducer(state = initialState, action) {
     ////////////////APP STATES/////////////////////
     case SET_HOTEL_TYPE:
       return {...state, hoteltype: action.payload};
-    case SET_PHONE_NO:
-      return {...state, phone_no: action.payload};
     case SET_DISPATCHER:
       return {...state, dispatcher: action.payload};
-      case SET_DISPATCHER_ID:
-        return {...state, dispatcher_id: action.payload};
+    case SET_DISPATCHER_ID:
+      return {...state, dispatcher_id: action.payload};
 
-          ////////////////////Account Data Submition////////////////
-          case SET_DRIVER_SUBMIT_ID:
-            return {...state, driver_submit_id: action.payload};
-          case SET_VEHICLE_SUBMIT_ID:
-            return {...state, vehicle_submit_id: action.payload};
-            case SET_PAYMENT_SUBMIT_ID:
-              return {...state, payment_submit_id: action.payload};
-              case SET_DOCUMENT_SUBMIT_ID:
-                return {...state, document_submit_id: action.payload};
+    ////////////////////Account Data Submition////////////////
+    case SET_DRIVER_SUBMIT_ID:
+      return {...state, driver_submit_id: action.payload};
+    case SET_VEHICLE_SUBMIT_ID:
+      return {...state, vehicle_submit_id: action.payload};
+    case SET_PAYMENT_SUBMIT_ID:
+      return {...state, payment_submit_id: action.payload};
+    case SET_DOCUMENT_SUBMIT_ID:
+      return {...state, document_submit_id: action.payload};
 
     ////////////////VEHICLE////////////////
     case SET_CAR_CONDITION:
       return {...state, condition: action.payload};
-      case SET_CAR_CONDITION_ID:
-        return {...state, condition_id: action.payload};
+    case SET_CAR_CONDITION_ID:
+      return {...state, condition_id: action.payload};
     case SET_CAR_TYPE_ID:
       return {...state, car_type_id: action.payload};
-      case SET_CAR_TYPE:
-        return {...state, car_type: action.payload};
+    case SET_CAR_TYPE:
+      return {...state, car_type: action.payload};
     case SET_CAR_MAKE:
       return {...state, car_make: action.payload};
+      case SET_CAR_MAKE_ID:
+        return {...state, car_make_id: action.payload};
     case SET_CAR_YEAR:
       return {...state, car_year: action.payload};
 
@@ -140,6 +174,19 @@ function userReducer(state = initialState, action) {
     /////////////////////NAV PLACE////////////
     case SET_NAV_PLACE:
       return {...state, nav_place: action.payload};
+    ////////////////Locations STATES/////////////////////
+    case SET_COUNTRY_NAME:
+      return {...state, country_name: action.payload};
+    case SET_COUNTRY_ID:
+      return {...state, country_id: action.payload};
+    case SET_STATE_NAME:
+      return {...state, state_name: action.payload};
+    case SET_STATE_ID:
+      return {...state, state_id: action.payload};
+    case SET_CITY_NAME:
+      return {...state, city_name: action.payload};
+    case SET_CITY_ID:
+      return {...state, city_id: action.payload};
 
     default:
       return state;

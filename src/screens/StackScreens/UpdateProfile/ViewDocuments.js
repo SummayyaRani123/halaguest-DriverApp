@@ -16,17 +16,18 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 //////////////////////app components///////////////
-import CamerBottomSheet from '../CameraBottomSheet/CameraBottomSheet';
-import CustomButtonhere from '../Button/CustomButton';
-import CustomModal from '../Modal/CustomModal';
+import CamerBottomSheet from '../../../components/CameraBottomSheet/CameraBottomSheet';
+import CustomButtonhere from '../../../components/Button/CustomButton';
+import CustomModal from '../../../components/Modal/CustomModal';
+import CustomHeader from '../../../components/Header/CustomHeader';
 
 ////////////////////redux////////////
 import {useSelector, useDispatch} from 'react-redux';
-import { setNavPlace,setDocumentsSubmitId } from '../../redux/actions';
+import { setNavPlace,setDocumentsSubmitId } from '../../../redux/actions';
 
 ////////////////api////////////////
 import axios from 'axios';
-import { BASE_URL } from '../../utills/ApiRootUrl';
+import { BASE_URL } from '../../../utills/ApiRootUrl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /////////////////////height width pakage/////////////////////
@@ -37,20 +38,11 @@ import {
 
 /////////////////////app styles////////////
 import styles from './styles';
-import Colors from '../../utills/Colors';
-import Inputstyles from '../../styles/GlobalStyles/Inputstyles';
+import Colors from '../../../utills/Colors';
+import Inputstyles from '../../../styles/GlobalStyles/Inputstyles';
 
-/////////////////app images////////////////
-import { appImages } from '../../constant/images';
+const ViewDocumentsDetail = ({navigation}) => {
 
-/////////////////navigation///////////////////
-import { useNavigation } from '@react-navigation/native';
-
-
-const DocumentsDetail = ({}) => {
-
-/////////////////navigation///////////////////
-const navigation = useNavigation();
 
   /////////////////////////redux///////////////////
   const { license_front,license_back,cnic_front,cnic_back,ownership,
@@ -129,19 +121,46 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
         _id: driver_submit_id,
         vehicle_detail_id: vehicle_submit_id,
         doc_id: document_submit_id,
-        //payment_detail_id:payment_submit_id
+        payment_detail_id:payment_submit_id
       },
     })
       .then(function (response) {
         console.log('response', JSON.stringify(response.data));
-       setModalVisible(false),
-        navigation.navigate('BottomTab')
+ 
+        setModalVisible(false)
       })
       .catch(function (error) {
         console.log('error', error);
       });
   };
-  useEffect(() => {}, []);
+  const GetVehicleDetail=async() => {
+    var vehicleid= await AsyncStorage.getItem('Vehicle_id')
+    console.log("order request function",vehicleid)
+
+    await axios({
+      method: 'GET',
+      url: BASE_URL+'api/vehicle/specificVehicle/'+vehicleid,
+    })
+    .then(function (response) {
+      console.log("response get here dispatcher payment", JSON.stringify(response.data))
+      dispatch(setCarCondition(response.data[0].condition_id.name))
+      dispatch(setCarType(response.data[0].car_type_id.name))
+      dispatch(setCarMake(response.data[0].make))
+      dispatch(setCarModal(response.data[0].modal))
+      setColor(response.data[0].color)
+      setStyle(response.data[0].style)
+      setPlateNO(response.data[0].plate_no)
+      setCarYear(response.data[0].year)
+      setCar_AC(response.data[0].ac)
+    })
+    .catch(function (error) {
+      console.log("error", error)
+    })
+    }
+  useEffect(async() => {
+  
+    GetVehicleDetail()
+  }, []);
     ////////////////datetime picker states////////////////
     const [date, setDate] = useState(new Date());
     const [mode, setMode] = useState('date');
@@ -182,11 +201,12 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
     };
 
   return (
- 
+
+      <SafeAreaView style={styles.container}>
+         
     <ScrollView
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}>
-      <SafeAreaView style={styles.container}>
       {show && (
       <DateTimePicker
       testID="dateTimePicker"
@@ -206,6 +226,16 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
       }}
       />
       )}
+          <CustomHeader
+          headerlabel={'Documents'}
+          iconPress={() => {
+            navigation.goBack();
+          }}
+          icon={'chevron-back'}
+          // searchicon={'search'}
+          //type={'crypto'}
+          //onpresseacrh={() => onSearch()}
+        />
           <View style={{flex: 1}}>
             <View style={Inputstyles.inputview}>
               <Text style={Inputstyles.inputtoptext}>Driving License</Text>
@@ -414,7 +444,7 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
                 </TouchableOpacity>
             </View>
 
-            <View style={{marginBottom: hp(2), marginTop: hp(12)}}>
+            {/* <View style={{marginBottom: hp(2), marginTop: hp(12)}}>
               <CustomButtonhere
                 title={'NEXT'}
                 widthset={'78%'}
@@ -426,15 +456,18 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
                   // navigation.navigate('Drawerroute')
                 }
               />
-            </View>
+            </View> */}
           </View>
           <CustomModal 
                 modalVisible={modalVisible}
                 CloseModal={() => setModalVisible(false)}
-                Icon={appImages.CheckCircle}
-                text={'Account Verified Successfully'}
-                leftbuttontext={'CANCEL'}
-                rightbuttontext={'OK'}
+                Icon={  <AntDesign
+                  name="checkcircle"
+                  color={Colors.Appthemecolor}
+                  size={100}
+              />}
+              text={'Password Updated'}
+          buttontext={'Go to Login'}
  onPress={()=> {updateDriverDetail()}}
                 /> 
   
@@ -444,9 +477,10 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
           title={'From Gallery'}
         />
 
-      </SafeAreaView>
-    </ScrollView>
+</ScrollView>
+ </SafeAreaView>
+
   );
 };
 
-export default DocumentsDetail;
+export default ViewDocumentsDetail;

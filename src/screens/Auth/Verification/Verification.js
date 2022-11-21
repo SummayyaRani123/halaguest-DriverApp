@@ -39,6 +39,10 @@ import { BASE_URL } from '../../../utills/ApiRootUrl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+/////////////////////////////////firebase///////////////////////
+import auth from '@react-native-firebase/auth';
+import { checkPermission } from '../../../api/FCMToken';
+
 const Verification = ({ navigation,route }) => {
   console.log("obj:",route.params)
 
@@ -51,6 +55,8 @@ const Verification = ({ navigation,route }) => {
 
         ///////////////Modal States///////////////
         const [modalVisible, setModalVisible] = useState(false);
+        const [modalVisible1, setModalVisible1] = useState(false);
+        const [modalVisible2, setModalVisible2] = useState(false);
 
   /////////////timer state///////////////
   const [disabletimer, setdisableTimer] = useState(false);
@@ -106,29 +112,25 @@ axios({
   method: 'POST',
   url: BASE_URL + 'api/phoneNo/logins',
   data: {
-    table_name: 'driver',
+    table_name: 'hotel',
     phoneno: predata.Phonenumber,
     device_token: 'dfdf3434' 
   },
 })
   .then(async function (response) {
-    console.log('response in driver login', JSON.stringify(response.data));
-    if(response.data.message === "driver Exists" && response.data.data.doc_id.length>0)
+    console.log('response in hotel login', JSON.stringify(response.data));
+    if(response.data.message === "Hotel Exists")
     {
       dispatch(setPhoneNumber(response.data.data.phoneno))
       dispatch(setLoginUser(response.data.data._id))
       await AsyncStorage.setItem('Userid',response.data.data._id);
-      //await AsyncStorage.setItem('Payment_id',response.data.data.payment_detail_id._id);
-      await AsyncStorage.setItem('Vehicle_id',response.data.data.vehicle_detail_id[0]._id);
-      await AsyncStorage.setItem('Document_id',response.data.data.doc_id[0]._id);
       setModalVisible(true)
     }
-    
     else {
       dispatch(setPhoneNumber(response.data.data.phoneno))
       dispatch(setLoginUser(response.data.data._id))
-     await AsyncStorage.setItem('Userid',response.data.data._id);
-     navigation.navigate('CreateAccount',{navplace:'CreateAccount'})
+      await AsyncStorage.setItem('Userid',response.data.data._id);
+      navigation.navigate('CreateAccount',{navplace:'CreateAccount'})
     }
 
   })
@@ -136,8 +138,63 @@ axios({
     console.log('error', error);
   });
 };
+
+const [confirm, setConfirm] = React.useState(null);
+
+const [code, setCode] = React.useState('');
+const [confirmcode, setconfirmCode] = React.useState('');
+
+  // Set an initializing state whilst Firebase connects
+  const [initializing, setInitializing] = React.useState(true);
+  const [user, setUser] = React.useState();
+
+  // Handle user state changes
+  const onAuthStateChanged=(user) =>{
+    console.log('user detail HermesInternal',user)
+    // setUser(user);
+    // if (initializing) setInitializing(false);
+  }
+
+  React.useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+// Handle the button press
+const signInWithPhoneNumber=async(phoneNumber) =>{
+  const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+  setConfirm(confirmation);
+  console.log('code.',confirmation.verificationId);
+}
+
+const confirmCode=async()=> {
+  console.log('user code.',value);
+  try {
+    var data= auth.PhoneAuthProvider.credential(confirm.verificationId, value);
+    //var data=await confirm.confirm(code);
+    console.log('user data after verification.',data);
+    setconfirmCode(data.secret)
+    if(data.secret === value)
+    {
+      //CheckLogin()
+      //alert('suceffully matched otp')
+    }
+    else 
+    {
+      setModalVisible1(true)
+      //alert('error in matched otp')
+    }
+  } catch (error) {
+    console.log('Invalid code.');
+  }
+}
   useEffect(() => {
-  
+    signInWithPhoneNumber('+'+predata.Phonenumber)
+             checkPermission().then(result => {
+            console.log("here in google password",result);
+            //setFCMToken(result)
+            //do something with the result
+          })
   },[]);
   return (
 
@@ -232,22 +289,40 @@ disabled={disabletimer}
           <CustomButtonhere
             title={'Verify'}
             widthset={'70%'}
-            topDistance={5}
+            topDistance={0}
             //onPress={() => verifyno()}
-            onPress={()=>   CheckLogin()   }
+            onPress={()=> 
+              confirmCode()
+                //CheckLogin() 
+                }
           /></View>
-          <View>
-          <CustomModal 
+   <CustomModal 
                 modalVisible={modalVisible}
                 CloseModal={() => setModalVisible(false)}
                 Icon={appImages.CheckCircle}
                 text={'Account Verified Successfully'}
-                leftbuttontext={'CANCEL'}
+                leftbuttontext={'CANCLE'}
                 rightbuttontext={'OK'}
  onPress={()=> {setModalVisible(false),navigation.navigate('BottomTab')}}
                 /> 
-          </View>
-
+                   <CustomModal 
+                modalVisible={modalVisible1}
+                CloseModal={() => setModalVisible1(false)}
+                Icon={appImages.CheckCircle}
+                text={'OTP Not Matched Confirm it or Resend it'}
+                leftbuttontext={'CANCLE'}
+                rightbuttontext={'OK'}
+ onPress={()=> {setModalVisible1(false)}}
+                /> 
+                   <CustomModal 
+                modalVisible={modalVisible2}
+                CloseModal={() => setModalVisible2(false)}
+                Icon={appImages.CheckCircle}
+                text={'Account Verified Successfully'}
+                leftbuttontext={'CANCLE'}
+                rightbuttontext={'OK'}
+ onPress={()=> {setModalVisible2(false),navigation.navigate('BottomTab')}}
+                /> 
 </SafeAreaView>
 
   )

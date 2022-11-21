@@ -1,3 +1,7 @@
 {
+<<<<<<< HEAD
     "java.configuration.updateBuildConfiguration": "interactive"
+=======
+    "java.configuration.updateBuildConfiguration": "disabled"
+>>>>>>> b92ee099a1964eb7c317dbdbeae559ee8a60f4be
 }

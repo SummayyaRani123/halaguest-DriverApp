@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:668168946427:android:4efbbbcf9dbc35e18c665e",
         "android_client_info": {
-          "package_name": "com.halaguestdriverapp"
+          "package_name": "com.halaguestdriverappApp"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "668168946427-4so10its8ecvj3lkk0bv0golci8ta3u2.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.halaguestdriverapp",
+            "package_name": "com.halaguestdriverappApp",
             "certificate_hash": "31ee1c18c404dc9ab741a4d11f4abb1bf9b6cb9d"
           }
         },

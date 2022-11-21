@@ -1,4 +1,4 @@
-package com.halaguestdriverapp;
+package com.halaguestdriverappApp;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

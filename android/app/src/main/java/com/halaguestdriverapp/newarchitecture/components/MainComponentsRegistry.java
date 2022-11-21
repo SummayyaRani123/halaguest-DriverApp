@@ -1,4 +1,4 @@
-package com.halaguestdriverapp.newarchitecture.components;
+package com.halaguestdriverappApp.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

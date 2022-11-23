@@ -1,41 +1,70 @@
 {
   "project_info": {
-    "project_number": "668168946427",
-    "project_id": "halaguest-driver",
-    "storage_bucket": "halaguest-driver.appspot.com"
+    "project_number": "996236931658",
+    "project_id": "halaguest-driver-app",
+    "storage_bucket": "halaguest-driver-app.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:668168946427:android:4efbbbcf9dbc35e18c665e",
+        "mobilesdk_app_id": "1:996236931658:android:ef86de957b6421b371ecb3",
         "android_client_info": {
           "package_name": "com.halaguestdriverapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "668168946427-4so10its8ecvj3lkk0bv0golci8ta3u2.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.halaguestdriverapp",
-            "certificate_hash": "31ee1c18c404dc9ab741a4d11f4abb1bf9b6cb9d"
-          }
-        },
-        {
-          "client_id": "668168946427-99v2i7r997g7rci6dsem7i45feo33d38.apps.googleusercontent.com",
+          "client_id": "996236931658-mhthulgpm2nv6dqsj3u0qb3v42shtt92.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAHw0JMAUqKmSLkFjvXHlbsVAMEGIciYDE"
+          "current_key": "AIzaSyCZihdYdnGay5tXhIYSl0NfO2i6HENI-aE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "668168946427-99v2i7r997g7rci6dsem7i45feo33d38.apps.googleusercontent.com",
+              "client_id": "996236931658-mhthulgpm2nv6dqsj3u0qb3v42shtt92.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996236931658:android:a9f3dbf9c5da547871ecb3",
+        "android_client_info": {
+          "package_name": "com.halaguestdriverappApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "996236931658-c1t68qtn94ne3kmppsvq6e1k2bqeq4n1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.halaguestdriverappApp",
+            "certificate_hash": "8f3e87e34786959f13c20e22f0af8a951ead19b7"
+          }
+        },
+        {
+          "client_id": "996236931658-mhthulgpm2nv6dqsj3u0qb3v42shtt92.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZihdYdnGay5tXhIYSl0NfO2i6HENI-aE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "996236931658-mhthulgpm2nv6dqsj3u0qb3v42shtt92.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

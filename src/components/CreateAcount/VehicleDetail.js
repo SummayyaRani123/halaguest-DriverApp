@@ -61,6 +61,7 @@ const VehicleDetail = ({navigation}) => {
     car_year,
     car_type_id,
     condition_id,
+    driver_submit_id
   } = useSelector(state => state.userReducer);
   const dispatch = useDispatch();
 
@@ -101,9 +102,6 @@ const VehicleDetail = ({navigation}) => {
 
   const AddVehicle = async () => {
     var user = await AsyncStorage.getItem('Userid');
-    var date = new Date();
-    console.log('userid:', date, condition_id, car_type_id, checked);
-
     axios({
       method: 'POST',
       url: BASE_URL + 'api/vehicle/createVehicle',
@@ -122,19 +120,36 @@ const VehicleDetail = ({navigation}) => {
       .then(function (response) {
         console.log('response', JSON.stringify(response.data));
         dispatch(setVehicleSubmitId(response.data.data._id));
-        setloading(0);
-        setdisable(0);
-        dispatch(setTopTabDriver(false));
-        dispatch(setTopTabVehicle(false));
-        //dispatch(setTopTabPayment(true));
-        dispatch(setTopTabDocument(true));
-  
+        updateDriverDetail(response.data.data._id)
       })
       .catch(function (error) {
         console.log('error', error);
       });
   };
-
+      //////////////////////Api Calling/////////////////
+      const updateDriverDetail = async (props) => {
+        console.log('here ids',props)
+            axios({
+              method: 'PUT',
+              url: BASE_URL + 'api/driver/updateDriver',
+              data: {
+                _id: driver_submit_id,
+                vehicle_detail_id:props,
+              },
+            })
+              .then(function (response) {
+                console.log('response', JSON.stringify(response.data));
+                setloading(0);
+                setdisable(0);
+                dispatch(setTopTabDriver(false));
+                dispatch(setTopTabVehicle(false));
+                //dispatch(setTopTabPayment(true));
+                dispatch(setTopTabDocument(true));
+              })
+              .catch(function (error) {
+                console.log('error', error);
+              });
+          };
   useEffect(() => {}, []);
 
   const VehicleValidation = async () => {
@@ -154,13 +169,15 @@ const VehicleDetail = ({navigation}) => {
     } else if (style == '') {
       setsnackbarValue({value: 'Please Enter Vehicle Style', color: 'red'});
       setVisible('true');
-    } else if (condition_id == '') {
-      setsnackbarValue({value: 'Please Enter Vehicle Condition', color: 'red'});
-      setVisible('true');
-    } else if (car_type_id == '') {
-      setsnackbarValue({value: 'Please Enter Vehicle Type', color: 'red'});
-      setVisible('true');
-    } else {
+    } 
+    // else if (condition_id == '') {
+    //   setsnackbarValue({value: 'Please Enter Vehicle Condition', color: 'red'});
+    //   setVisible('true');
+    // } else if (car_type_id == '') {
+    //   setsnackbarValue({value: 'Please Enter Vehicle Type', color: 'red'});
+    //   setVisible('true');
+    // } 
+    else {
       setloading(1);
       setdisable(1);
       AddVehicle();
@@ -201,7 +218,7 @@ const VehicleDetail = ({navigation}) => {
               />
             </View>
             <Text style={Inputstyles.inputtoptext}>
-              Year of Manufacture{car_year}
+              Year of Manufacture
             </Text>
 
             <View style={Inputstyles.action}>

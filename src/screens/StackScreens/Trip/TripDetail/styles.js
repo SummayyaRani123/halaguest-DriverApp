@@ -20,6 +20,13 @@ flex:1,
 backgroundColor:'white',
 
 },
+mapStyle: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
 ordertopview:
 {
     alignItems:'center',
@@ -44,7 +51,8 @@ usernametext:
 fontFamily:fontFamily.Poppins_SemiBold,
 fontSize:hp(1.8),
 color:'#303030',
-marginLeft:wp(2)
+marginLeft:wp(2),
+width:wp(45)
 },
 status:
 {

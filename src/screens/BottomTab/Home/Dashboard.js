@@ -1,16 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {
-    SafeAreaView, FlatList, StatusBar, ImageBackground,BackHandler,
-    ScrollView,
-    Image, View, Text, TouchableOpacity, TextInput,ActivityIndicator
+  SafeAreaView,
+  FlatList,
+  StatusBar,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 
 // Import Map and Marker
 import Geocoder from 'react-native-geocoding';
-import Geolocation from '@react-native-community/geolocation';
-import MapView, {Marker,PROVIDER_GOOGLE,AnimatedRegion } from 'react-native-maps';
-import { MapKeyApi } from '../../../utills/MapKey';
-
+import MapView, {
+  Marker,
+  PROVIDER_GOOGLE,
+  AnimatedRegion,
+} from 'react-native-maps';
+import {MapKeyApi} from '../../../utills/MapKey';
 
 //////////////////app icons////////////////
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -19,246 +25,187 @@ import Icon from 'react-native-vector-icons/Ionicons';
 //////////////////////app components///////////////
 import DashboardHeader from '../../../components/Header/DashboardHeade';
 import ViewAll from '../../../components/ViewAll/ViewAll';
-import GuestCards from '../../../components/CustomCards/GuestCards/GuestCards';
 import OrdersCards from '../../../components/CustomCards/OrderCards/Orders';
-import CustomCards from '../../../components/CustomCards/CustomCards';
+import Loader from '../../../components/Loader/Loader';
 
 ////////////////////redux////////////
-import { useSelector, useDispatch } from 'react-redux';
-import { setName, setAge } from '../../../redux/actions';
+import {useSelector, useDispatch} from 'react-redux';
+import {setName, setAge} from '../../../redux/actions';
 
 ////////////////api////////////////
 import axios from 'axios';
-import { BASE_URL } from '../../../utills/ApiRootUrl';
+import {BASE_URL} from '../../../utills/ApiRootUrl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 /////////////////////app styles////////////
 import styles from './styles';
 import Colors from '../../../utills/Colors';
-import TopTabstyles from '../../../styles/GlobalStyles/TopTabstyles';
-import Inputstyles from '../../../styles/GlobalStyles/Inputstyles';
 
 /////////////////app images///////////
-import { appImages } from '../../../constant/images';
+import {appImages} from '../../../constant/images';
 
-const Orderss = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'First Item',
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Second Item',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd9556-145571e29d72',
-        title: 'Third Item',
+//////////////////current location function/////////////
+import {
+  locationPermission,
+  getCurrentLocation,
+} from '../../../api/CurrentLocation';
+
+
+const Home = ({navigation}) => {
+  ////////////////redux/////////////////
+  const {name, age} = useSelector(state => state.userReducer);
+  const dispatch = useDispatch();
+
+////////////////loading/////////////
+const [loading, setloading] = useState(true);
+
+  /////////////main menu status states/////////////
+  const [Orders, setOrders] = useState('');
+  const GetOrders = async () => {
+    var user= await AsyncStorage.getItem('Userid')
+    axios({
+      method: 'GET',
+      url: BASE_URL + 'api/driver/searchOrder/'+user,
+    })
+      .then(async function (response) {
+        setOrders(response.data);
+      })
+      .catch(function (error) {
+        console.log('error', error);
+      });
+  };
+
+  //////////////////////Api Calling/////////////////
+  const UdpdateDriverLocation = async () => {
+    var user= await AsyncStorage.getItem('Userid')
+    axios({
+      method: 'PUT',
+      url: BASE_URL + 'api/driver/updateDriver',
+      data: {
+        _id:user,
+        driver_lat: driver_lat,
+        driver_log: driver_log, 
       },
-  ];
+    })
+      .then(function (response) {
+        //console.log('response', JSON.stringify(response.data))
 
-const Home = ({ navigation }) => {
+      })
+      .catch(function (error) {
+        console.log('error', error);
+      });
+  };
 
-    //Modal States
-    const [modalVisible, setModalVisible] = useState(false);
+///////////////////map states//////////
+const [driver_lat, setDriver_lat] = useState();
+const [driver_log, setDriver_log] = useState();
+const [driver_location, setDriver_location] = useState();
 
-    const { name, age } = useSelector(state => state.userReducer);
-    const dispatch = useDispatch();
+const getLiveLocation = async () => {
+Geocoder.init(MapKeyApi); 
+const locPermissionDenied = await locationPermission()
+if (locPermissionDenied) {
+    const { latitude, longitude, heading } = await getCurrentLocation()
+    // console.log("get live location after 4 second",latitude,longitude,heading)
+    setDriver_lat(latitude)
+    setDriver_log(longitude)
+    Geocoder.from(latitude,
+      longitude)
+       .then(json => {
+var addressComponent = json.results[0].formatted_address;
+setDriver_location(addressComponent)
+       })
+}
+}
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getLiveLocation();
+      UdpdateDriverLocation()
+      GetOrders()
+      setloading(false)
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <SafeAreaView style={styles.container}>
+    <Loader
+    isLoading={loading}
+    />
+    <ScrollView
+    showsVerticalScrollIndicator={false}
+    showsHorizontalScrollIndicator={false}>
+    <StatusBar backgroundColor={'black'} barStyle="light-content" />
+    <DashboardHeader
+      headerlabel={'Username'}
+      userimage={appImages.ProfileUser}
+      iconPress={() => {
+        navigation.toggleDrawer();
+      }}
+      icon={'menu'}
+      onpressicon={() => navigation.navigate('Notification')}
+    />
 
-    const _map = React.useRef(null);
-  /////////////map states////////////
-  const [mapmargin, setMapMargin]=useState(1)
-    const [eror, setError]=useState()
-const [region, setRegion] = useState();
-const [marker, setMarker] = useState();
-const [pinlat, setPinLat] = useState(56.002716);
-const [pinlog, setPinLog] = useState(-4.580081);
-const [userloc, setuserloc] = useState(false);
-
-            /////////////main menu status states/////////////
-    const [Orders, setOrders] = useState('')
-        const GetOrders = async () => {
-
-            axios({
-                method: 'GET',
-                url: BASE_URL + 'api/Order/allOrders',
-            })
-                .then(async function (response) {
-                    console.log("list data here ", response.data)
-                    setOrders(response.data)
-                })
-                .catch(function (error) {
-                    console.log("error", error)
-                })
-            }
-    /////////////user current location////////////////
-const GetcurrLocation=()=>{
-    Geocoder.init(MapKeyApi); 
-    Geolocation.getCurrentPosition(
-                    (position) => {
-                      setPinLat(position.coords.latitude)
-                      setPinLog(position.coords.longitude)
-                    setRegion({
-                      latitude: position.coords.latitude,
-                      longitude: position.coords.longitude,
-                      latitudeDelta: 0.0462,
-                      longitudeDelta: 0.0261,
-                    });
-                    console.log('map regions:',region)
-                    setMarker({
-                      latitude: position.coords.latitude,
-                      longitude: position.coords.longitude,
-                    });
-                        Geocoder.from(position.coords.latitude,
-                           position.coords.longitude)
-                            .then(json => {
-                                console.log(json);
-        var addressComponent = json.results[0].address_components;
-                            })
-  
-                            .catch(error => console.warn(error));
-                    },
-                    (error) => {
-                        // See error code charts below.
-                    
-                                setError(error.message)
-                       
-                            console.log(error.code, error.message);
-                    },
-                    {
-                        enableHighAccuracy: false,
-                        timeout: 10000,
-                        maximumAge: 100000
-                    }
-                );
-  }
-
-
-    useEffect(() => {
-        GetcurrLocation()
-        GetOrders()
-      
-    }, []);
-    useEffect(() => {
-        // back handle exit app
-        BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
-        };
-    }, []);
-let backHandlerClickCount = 0;
-    const backButtonHandler = () => {
-        const shortToast = message => {
-            Toast.show(message, {
-                duration: Toast.durations.LONG,
-                position: Toast.positions.BOTTOM,
-            });
-        }
-        let backHandlerClickCount;
-        backHandlerClickCount += 1;
-        if ((backHandlerClickCount < 2)) {
-            shortToast('Press again to quit the application');
-        } else {
-            BackHandler.exitApp();
-        }
-
-        // timeout for fade and exit
-        setTimeout(() => {
-            backHandlerClickCount = 0;
-        }, 1000);
-        
-        return true;
-    }
-    return (
-<SafeAreaView style={styles.container}>
-    <ScrollView 
-     showsVerticalScrollIndicator={false}
-     showsHorizontalScrollIndicator={false}>
-            <StatusBar backgroundColor={'black'} barStyle="light-content" />
-            <DashboardHeader
-                headerlabel={'Username'}
-                userimage={appImages.ProfileUser}
-                iconPress={() => { navigation.toggleDrawer()}}
-                icon={'menu'}
-                onpressicon={() => navigation.navigate('Notification')}
-            />
-
-<View style={{height:hp(30)}}>
-    {pinlat && pinlog >0?
-    <MapView
-    style={[styles.mapStyle]}
-   provider={PROVIDER_GOOGLE} // remove if not using Google Maps 
-    initialRegion={      {
-      latitude: pinlat,
-      longitude: pinlog,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }}
-  >
-              {marker != ''?
+    <View style={{height: hp(30)}}>
+      {driver_lat && driver_log > 0 ? (
+        <MapView
+          style={[styles.mapStyle]}
+          provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+          initialRegion={{
+            latitude: driver_lat,
+            longitude: driver_log,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}>
+          {driver_lat && driver_log > 0  ? (
             <Marker
-            draggable={true}
-            coordinate={
-              {      
-              latitude: pinlat,
-              longitude: pinlog
-            }}
-              title={'title'}
-              description={'here'}
-              onDragStart={(e)=>
-                console.log('Darg Start:',e.nativeEvent.coordinate)}
-                onDragEnd={(e)=>
-                 { console.log('Darg Start:',e.nativeEvent.coordinate),
-                 setPinLat(e.nativeEvent.coordinate.latitude)
-                 setPinLog(e.nativeEvent.coordinate.longitude)
-                  console.log('Darg Start:',pinlat,pinlog)}
-                }
+              draggable={true}
+              coordinate={{
+                latitude: driver_lat,
+                longitude: driver_log,
+              }}
             />
-            :
-            null
-          }
-  </MapView>
-:null}
+          ) : null}
+        </MapView>
+      ) : null}
+    </View>
 
-</View>
+    <View style={styles.locview}>
+      <Icon
+        name={'location'}
+        size={25}
+        color={Colors.Appthemeorangecolor}
+        //onPress={props.iconPress}
+      />
+      <Text style={styles.loctext}>{driver_location}</Text>
+    </View>
+    <ViewAll
+      headerlabel={'Upcoming Trips'}
+      onpress={() => navigation.navigate('TripList')}
+    />
+    {Orders === ''
+      ? null
+      : Orders.slice(0, 3).map((item, key) => (
+        <TouchableOpacity onPress={()=>navigation.navigate('TripDetail',{orderid:item._id,navplace:'Trip'})}
+        activeOpacity={true}
+        >
+          <OrdersCards
+              time={item.flight_time}
+               price={item.total_amount+'$'}
+               pickupLoc={item.pickup_location}
+               dropoffLoc={item.dropoff_location}
+          />
+          </TouchableOpacity>
+        ))}
+  </ScrollView>
 
-<View style={styles.locview}>
-<Icon name={'location'} size={25} 
-          color= {Colors.Appthemeorangecolor}
-           //onPress={props.iconPress} 
-           />
-<Text style={styles.loctext}>User current Location Here</Text>
-</View>
-<ViewAll
-                headerlabel={'Upcoming Trips'}
-                onpress={() =>navigation.navigate('TripList')}
-            />
-{Orderss === ''?null:
 
-Orderss.slice(0, 3).map((item, key) => (
-<OrdersCards
-                                      
-                                    //   time={item.flight_time}
-                                    //    price={item.total_amount+'$'}
-                                    //    pickupLoc={item.pickup_location}
-                                    //    dropoffLoc={item.dropoff_location}
-                                    time={'00:00 pm'}
-                                    price={'200'+'$'}
-                                    pickupLoc={'Pickup location here'}
-                                    dropoffLoc={'Drop off location here'}
-                                   />
-))}
-
-
-</ScrollView>
-</SafeAreaView>
-
-    )
+    </SafeAreaView>
+  );
 };
 
 export default Home;

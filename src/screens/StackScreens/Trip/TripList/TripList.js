@@ -35,25 +35,6 @@ import Inputstyles from '../../../../styles/GlobalStyles/Inputstyles';
 /////////////////app images///////////
 import { appImages } from '../../../constant/images';
 
-  const ScheduleOrders1 = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'First Item',
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Second Item',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd9556-145571e29d72',
-        title: 'Third Item',
-      },
-  ];
-
 const TripList = ({ navigation }) => {
 
     //Modal States
@@ -64,32 +45,29 @@ const TripList = ({ navigation }) => {
     useSelector(state => state.userReducer);
   const dispatch = useDispatch();
 
-      /////////////main menu status states/////////////
-      const [Schedule, setSchedule] = useState(true)
-      const [Complete, setComplete] = useState(false)
+  /////////////main menu status states/////////////
+  const [Orders, setOrders] = useState('');
+  const GetOrders = async () => {
+    var user= await AsyncStorage.getItem('Userid')
+    console.log('userid:',user);
+    axios({
+      method: 'GET',
+      url: BASE_URL + 'api/driver/searchOrder/'+user,
+    })
+      .then(async function (response) {
+        console.log('list data here ', response.data);
+        setOrders(response.data);
+      })
+      .catch(function (error) {
+        console.log('error', error);
+      });
+  };
 
-
-            /////////////main menu status states/////////////
-    const [ScheduleOrders, setScheduleOrders] = useState('')
-        const GetScheduleOrders = async () => {
-
-            axios({
-                method: 'GET',
-                url: BASE_URL + 'api/Order/hotelOrdersScheduled/63636a39fdb2d73b27d198f8',
-            })
-                .then(async function (response) {
-                    console.log("list data here ", response.data)
-                    setScheduleOrders(response.data)
-                })
-                .catch(function (error) {
-                    console.log("error", error)
-                })
-            }
   
 
     useEffect(() => {
 
-      
+      GetOrders()
     }, []);
     return (
 <SafeAreaView style={styles.container}>
@@ -98,7 +76,7 @@ const TripList = ({ navigation }) => {
      showsHorizontalScrollIndicator={false}>
             <StatusBar backgroundColor={'black'} barStyle="light-content" />
             <CustomHeader
-          headerlabel={'Notifications'}
+          headerlabel={'Trips'}
           iconPress={() => {
             navigation.goBack();
           }}
@@ -110,19 +88,14 @@ const TripList = ({ navigation }) => {
        /> */}
        <View style={{marginTop:hp(3)}}></View>
 {
-ScheduleOrders1 === ''?null:
-ScheduleOrders1.slice(0, 3).map((item, key) => (
+Orders === ''?null:
+Orders.map((item, key) => (
     <TouchableOpacity onPress={()=>navigation.navigate('TripDetail',{orderid:item._id,navplace:'Trip'})}>
         <TripCard
-                                      
-                                      //   time={item.flight_time}
-                                      //    price={item.total_amount+'$'}
-                                      //    pickupLoc={item.pickup_location}
-                                      //    dropoffLoc={item.dropoff_location}
-                                         time={'00:00 pm'}
-                                         price={'200'+'$'}
-                                         pickupLoc={'Pickup location here'}
-                                         dropoffLoc={'Drop off location here'}
+                                        time={item.flight_time}
+                                         price={item.total_amount+'$'}
+                                         pickupLoc={item.pickup_location}
+                                         dropoffLoc={item.dropoff_location}
                                          onpress={()=>navigation.navigate('TripDetail',{navplace:'Trip'})}
                                      />
                                    </TouchableOpacity>

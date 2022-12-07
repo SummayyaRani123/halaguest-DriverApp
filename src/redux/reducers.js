@@ -49,6 +49,15 @@ import {
   SET_STATE_ID,
   SET_CITY_NAME,
   SET_CITY_ID,
+
+  ////////////////Order Location detail//////////////
+  SET_LOCATION_LAT,
+  SET_LOCATION_LNG,
+  SET_LOCATION_ADDRESS,
+
+    ////////////////Time Interval//////////////
+    SET_TIME_INTERVAL,
+
 } from './actions';
 
 const initialState = {
@@ -103,6 +112,15 @@ const initialState = {
   state_id: '',
   city_name: '',
   city_id: '',
+
+  ////////////////Order Location detail//////////////
+  location_lat: '',
+  location_lng: '',
+  location_address: '',
+
+    ////////////////Order Location detail//////////////
+  time_interval: '',
+
 };
 
 function userReducer(state = initialState, action) {
@@ -152,8 +170,12 @@ function userReducer(state = initialState, action) {
       return {...state, car_type: action.payload};
     case SET_CAR_MAKE:
       return {...state, car_make: action.payload};
-      case SET_CAR_MAKE_ID:
-        return {...state, car_make_id: action.payload};
+    case SET_CAR_MAKE_ID:
+      return {...state, car_make_id: action.payload};
+      case SET_CAR_MODAL:
+        return {...state, car_modal: action.payload};
+      case SET_CAR_MODAL_ID:
+        return {...state, car_modal_id: action.payload};
     case SET_CAR_YEAR:
       return {...state, car_year: action.payload};
 
@@ -187,6 +209,18 @@ function userReducer(state = initialState, action) {
       return {...state, city_name: action.payload};
     case SET_CITY_ID:
       return {...state, city_id: action.payload};
+
+    ////////////////Order Location Detail//////////////
+    case SET_LOCATION_LAT:
+      return {...state, location_lat: action.payload};
+    case SET_LOCATION_LNG:
+      return {...state, location_lng: action.payload};
+    case SET_LOCATION_ADDRESS:
+      return {...state, location_address: action.payload};
+
+       ////////////////Order Location Detail//////////////
+    case SET_TIME_INTERVAL:
+      return {...state, time_interval: action.payload};
 
     default:
       return state;

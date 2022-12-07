@@ -19,7 +19,7 @@ import { BASE_URL } from '../../utills/ApiRootUrl';
   import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CarMake = (props) => {
-    console.log('here:',props)
+
     /////////////redux states///////
     const { condition} = useSelector(state => state.userReducer);
     const dispatch = useDispatch();

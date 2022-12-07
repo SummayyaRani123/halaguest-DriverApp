@@ -37,62 +37,35 @@ import Inputstyles from '../../../styles/GlobalStyles/Inputstyles';
 /////////////////app images///////////
 import { appImages } from '../../../constant/images';
 
-  const ScheduleOrders1 = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'First Item',
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Second Item',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      title: 'Third Item',
-    },
-    {
-        id: '58694a0f-3da1-471f-bd9556-145571e29d72',
-        title: 'Third Item',
-      },
-  ];
-
 const Notification = ({ navigation }) => {
-
-    //Modal States
-    const [modalVisible, setModalVisible] = useState(false);
 
     ///////////////////redux states///////////////////////
     const {hoteltype, phone_no,top_tab_driver,top_tab_payment,top_tab_vehicle } =
     useSelector(state => state.userReducer);
   const dispatch = useDispatch();
 
-      /////////////main menu status states/////////////
-      const [Schedule, setSchedule] = useState(true)
-      const [Complete, setComplete] = useState(false)
+    /////////////Get Notification/////////////
+    const [Notifications, setNotifications] = useState('');
 
-
-            /////////////main menu status states/////////////
-    const [ScheduleOrders, setScheduleOrders] = useState('')
-        const GetScheduleOrders = async () => {
-
-            axios({
-                method: 'GET',
-                url: BASE_URL + 'api/Order/hotelOrdersScheduled/63636a39fdb2d73b27d198f8',
-            })
-                .then(async function (response) {
-                    console.log("list data here ", response.data)
-                    setScheduleOrders(response.data)
-                })
-                .catch(function (error) {
-                    console.log("error", error)
-                })
-            }
-  
-
-    useEffect(() => {
-
-      
-    }, []);
+    const GetNotifications = async () => {
+      var user = await AsyncStorage.getItem('Userid');
+      console.log('order request function', user);
+      axios({
+        method: 'GET',
+        url: BASE_URL + 'api/notification/getToNotifications/' + user,
+      })
+        .then(async function (response) {
+          console.log('list data here ', response.data);
+          setNotifications(response.data);
+        })
+        .catch(function (error) {
+          console.log('error', error);
+        });
+    };
+      useEffect(() => {
+        GetNotifications()
+        
+      }, []);
     return (
 <SafeAreaView style={styles.container}>
     <ScrollView 
@@ -111,20 +84,17 @@ const Notification = ({ navigation }) => {
        labelPress={()=>navigation.navigate('UpdateProfile')}
        /> */}
 {
-ScheduleOrders1 === ''?null:
+Notifications === ''?null:
 
-ScheduleOrders1.slice(0, 3).map((item, key) => (
+Notifications.slice(0, 3).map((item, key) => (
 //    <TouchableOpacity onPress={()=>navigation.navigate('OrderDetail',{orderid:item._id,navplace:'Schedule'})}>
 //   </TouchableOpacity>
         <NotificationView
-                                      
-                                    //   time={item.flight_time}
-                                    //    price={item.total_amount+'$'}
-                                    //    pickupLoc={item.pickup_location}
-                                    //    dropoffLoc={item.dropoff_location}
-                                      notitext={'Order 123 is completed successfully'}
-                                       notitime={'00:00 pm'}
-                                       notiicon={appImages.NotiCheck}
+        notitext={item.detail}
+        notitime={item.created_at}
+        notiicon={item.detail === 'Order 123 is completed sucessfully' ?appImages.NotiCheck:
+        item.detail === 'Order 123 is cancel' ?appImages.NotiCancel:null
+       }
                                    />
                           
 ))

@@ -119,7 +119,7 @@ const [maxheight, setHeight] = useState(52)
       setName(response.data[0].name)
       setEmail(response.data[0].email)
       setZipcode(response.data[0].zip_code)
-      setStreet_address(response.data[0].street_address)
+      setStreet_address(response.data[0].driver_location)
     })
     .catch(function (error) {
       console.log("error", error)
@@ -177,7 +177,7 @@ const [maxheight, setHeight] = useState(52)
             </TouchableOpacity>
 <View style={Inputstyles.inputview}>
   <Text style={Inputstyles.inputtoptext}>Name</Text>
-  <TouchableOpacity onPress={()=> refddRBSheet.current.open()} >
+  {/* <TouchableOpacity onPress={()=> refddRBSheet.current.open()} > */}
   <View style={Inputstyles.action}>
             <TextInput
             value={name}
@@ -190,10 +190,9 @@ const [maxheight, setHeight] = useState(52)
               placeholderTextColor={Colors.inputtextcolor}
               autoCapitalize="none"
               style={Inputstyles.input}
-              editable={false}
             />
           </View>
-  </TouchableOpacity>
+  {/* </TouchableOpacity> */}
           <Text style={Inputstyles.inputtoptext}>Email</Text>
           <View style={Inputstyles.action}>
             <TextInput

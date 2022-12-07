@@ -1,15 +1,14 @@
-
 import * as React from 'react';
-import { View, Text } from 'react-native';
-import { NavigationContainer,useNavigation  } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {View, Text} from 'react-native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 // //////////////notification/////////////////
 // import messaging from '@react-native-firebase/messaging';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Provider } from 'react-redux';
-import { Store } from './src/redux/store';
+import {Provider} from 'react-redux';
+import {Store} from './src/redux/store';
 
 //Screens
 import AuthNav from './src/navigation/AuthNav/AuthNav';
@@ -27,13 +26,16 @@ import TripList from './src/screens/StackScreens/Trip/TripList/TripList';
 import TripDetail from './src/screens/StackScreens/Trip/TripDetail/TripDetail';
 import ViewPaymentDetail from './src/screens/StackScreens/UpdateProfile/ViewPayment';
 import ViewVehicleDetail from './src/screens/StackScreens/UpdateProfile/ViewVehicleDetail';
+import Location from './src/screens/StackScreens/Location/Location';
+import TripRoute from './src/screens/StackScreens/Trip/TripRoute/TripRoute';
+import TripCompleted from './src/screens/StackScreens/Trip/TripRoute/TripCompleted';
+import ChatScreen from './src/screens/StackScreens/Chat/UserChat/ChatScreen';
 
 const Stack = createNativeStackNavigator();
 function App() {
-//const navigation = useNavigation();
+  //const navigation = useNavigation();
   const [loading, setLoading] = React.useState(true);
   const [initialRoute, setInitialRoute] = React.useState('Home');
-
 
   // React.useEffect( () => {
   //   // Assume a message-notification contains a "type" property in the data payload of the screen to open
@@ -74,66 +76,143 @@ function App() {
   // }, []);
   return (
     <Provider store={Store}>
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRoute}>
-      <Stack.Screen name="AuthNav" component={AuthNav}
-        options={{
-        headerShown: false,
-        }} />
-      <Stack.Screen name="BottomTab" component={BottomTab}
-        options={{
-        headerShown: false,
-        }} />
-      <Stack.Screen name="OrderDetail" component={OrderDetail}
-        options={{
-        headerShown: false,
-        }} />
-              <Stack.Screen name="Settings" component={Settings}
-        options={{
-        headerShown: false,
-        }} />
-              <Stack.Screen name="PrivacyTerms" component={PrivacyTerms}
-        options={{
-        headerShown: false,
-        }} />
-                    <Stack.Screen name="UpdateProfile" component={UpdateProfile}
-        options={{
-        headerShown: false,
-        }} />
-                <Stack.Screen name="UpdatePaymentDetail" component={UpdatePaymentDetail}
-        options={{
-        headerShown: false,
-        }} />
-                        <Stack.Screen name="UpdateDocumentsDetail" component={UpdateDocumentsDetail}
-        options={{
-        headerShown: false,
-        }} />
-            <Stack.Screen name="UpdateVehicleDetail" component={UpdateVehicleDetail}
-        options={{
-        headerShown: false,
-        }} />
-                <Stack.Screen name="Notification" component={Notification}
-        options={{
-        headerShown: false,
-        }} />
-           <Stack.Screen name="TripList" component={TripList}
-        options={{
-        headerShown: false,
-        }} />
-                 <Stack.Screen name="TripDetail" component={TripDetail}
-        options={{
-        headerShown: false,
-        }} />
-    <Stack.Screen name="ViewPaymentDetail" component={ViewPaymentDetail}
-        options={{
-        headerShown: false,
-        }} />
-       <Stack.Screen name="ViewVehicleDetail" component={ViewVehicleDetail}
-        options={{
-        headerShown: false,
-        }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName={initialRoute}>
+          <Stack.Screen
+            name="AuthNav"
+            component={AuthNav}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="BottomTab"
+            component={BottomTab}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="OrderDetail"
+            component={OrderDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={Settings}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="PrivacyTerms"
+            component={PrivacyTerms}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="UpdateProfile"
+            component={UpdateProfile}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="UpdatePaymentDetail"
+            component={UpdatePaymentDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="UpdateDocumentsDetail"
+            component={UpdateDocumentsDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="UpdateVehicleDetail"
+            component={UpdateVehicleDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Notification"
+            component={Notification}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="TripList"
+            component={TripList}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="TripDetail"
+            component={TripDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ViewPaymentDetail"
+            component={ViewPaymentDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ViewVehicleDetail"
+            component={ViewVehicleDetail}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Location"
+            component={Location}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="TripRoute"
+            component={TripRoute}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="TripCompleted"
+            component={TripCompleted}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ChatScreen"
+            component={ChatScreen}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Rattings"
+            component={Rattings}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </Provider>
   );
 }

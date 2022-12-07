@@ -284,3 +284,37 @@ export const setCityId = city_id => dispatch => {
         payload: city_id,
     });
 };
+
+     ////////////////APP LOGIN STATES/////////////////////
+     export const SET_LOCATION_LAT = 'SET_LOCATION_LAT';
+     export const SET_LOCATION_LNG = 'SET_LOCATION_LNG';
+     export const SET_LOCATION_ADDRESS = 'SET_LOCATION_ADDRESS';
+
+  ///////////////User Login Info///////////////
+  export const setLocationLat = location_lat => dispatch => {
+    dispatch({
+        type: SET_LOCATION_LAT,
+        payload: location_lat,
+    });
+};
+export const setLocationLng = location_lng => dispatch => {
+    dispatch({
+        type: SET_LOCATION_LNG,
+        payload: location_lng,
+    });
+};
+export const setLocationAddress = location_address => dispatch => {
+    dispatch({
+        type: SET_LOCATION_ADDRESS,
+        payload:location_address,
+    });
+};
+
+     ////////////////Time Interval STATES/////////////////////
+     export const SET_TIME_INTERVAL = 'SET_TIME_INTERVAL';
+     export const setTimeInterval = time_interval => dispatch => {
+        dispatch({
+            type: SET_TIME_INTERVAL,
+            payload:time_interval,
+        });
+    };

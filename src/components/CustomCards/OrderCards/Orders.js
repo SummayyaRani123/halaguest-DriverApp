@@ -35,7 +35,7 @@ const OrdersCards = (props) => {
                 </Text>
       {          props.type === 'Schedule'?
                               <Text style={styles.Triptext}>
-                              {'Trip Time: '}  
+                              {'Trip Date: '}  
                                   <Text style={styles.Timetext}> 
                               {props.date}
                                   </Text>

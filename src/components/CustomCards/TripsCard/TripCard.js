@@ -23,7 +23,7 @@ const TripCard = (props) => {
     return (
         <View style={styles.card}>
             
-            <View style={{flexDirection:"row",marginTop:hp(0),
+            {/* <View style={{flexDirection:"row",marginTop:hp(0),
         width:wp(75)}}>
         <Image
             source={appImages.NotiCheck}
@@ -34,7 +34,7 @@ const TripCard = (props) => {
             <Text style={styles.Triptext}>Customer Name</Text>
 
             </View>
-          </View>
+          </View> */}
           <View style={styles.innercard}>
             {
             props.navplace === 'trip'? null :
@@ -85,14 +85,14 @@ const TripCard = (props) => {
                         </Text>
                         </View>
                 
-                    <TouchableOpacity onPress={props.onpress}
+                    {/* <TouchableOpacity onPress={props.onpress}
                     style={{height:hp(5),width:wp(23),backgroundColor:Colors.Appthemecolor,
                     borderRadius:wp(2),alignItems:'center',justifyContent:'center'
                     }}
                     >
                     <Text style={styles.btntext}>ACCEPT
                         </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     </View>
                         </View>
                  

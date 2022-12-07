@@ -22,6 +22,7 @@ width:wp(props.width)
 }}>
            <IconButton
                 icon={props.icon}
+           color={props.state===true?Colors.Appthemeorangecolor:'grey'}
                 iconColor={props.state===true?Colors.Appthemeorangecolor:'grey'}
                 size={30}
       
@@ -29,7 +30,7 @@ width:wp(props.width)
 
                         <Text style={{
                             color:props.state===true?Colors.Appthemeorangecolor:'#AAAAAA',
-                        fontWeight:"400",fontSize:hp(1.7),
+                        fontWeight:"400",fontSize:hp(1.5),
                         fontFamily:fontFamily.Poppins_Regular,
                         }}>
                             {props.title}</Text>

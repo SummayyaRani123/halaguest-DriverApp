@@ -17,14 +17,20 @@ const styles = StyleSheet.create({
       backgroundColor: Colors.Appthemecolor,
       height: Height * 0.09,
       width: Width ,
-      paddingHorizontal:wp(3)
-      
+      paddingHorizontal:wp(0),
+      justifyContent:'space-between',
+      alignItems:'center'
     },
-    iconview:
+    lefticonview:
     { 
         justifyContent: 'center', 
-        marginRight: wp(0)
+        marginLeft: wp(5)
      },
+     righticonview:
+     { 
+         justifyContent: 'center', 
+         paddingRight: wp(5)
+      },
     labelView: {
       marginHorizontal: wp(5),
       flexDirection: 'column',

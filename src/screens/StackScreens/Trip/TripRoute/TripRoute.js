@@ -1,264 +1,392 @@
-import React,{useState,useEffect,useRef} from 'react';
-// Import required components
-import {SafeAreaView, StyleSheet,TextInput,  Animated,ScrollView,Image,
-     View,Text,TouchableOpacity,ActivityIndicator,TouchableHighlight
+import React, { useEffect, useState,useRef } from 'react';
+import {
+  SafeAreaView,ImageBackground,Dimensions,Linking,
+   View, Text, TouchableOpacity,Image, TouchableHighlightComponent
 } from 'react-native';
 
-//////////////////app components////////////////
-import OrdersCards from '../../../../components/CustomCards/OrderCards/Orders';
-import CustomModal from '../../../../components/Modal/CustomModal';
-import ReasonModal from '../../../../components/Modal/ReasonModal';
+///////////////////app components//////////
+import WaitingModal from '../../../../components/Modal/CustomModal';
 
-//////////////app pakages////////////
+///////////////timer/////////////////////
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
+import CountDown from 'react-native-countdown-component';
+
+//////app icons////////////////
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useIsFocused } from '@react-navigation/native';
 
-// Import Map and Marker
-import Geocoder from 'react-native-geocoding';
-import Geolocation from '@react-native-community/geolocation';
-import MapView, {Marker,PROVIDER_GOOGLE,AnimatedRegion } from 'react-native-maps';
-import { MapKeyApi } from '../../../../utills/MapKey';
+///////////////////app components////////////
+import OrdersCards from '../../../../components/CustomCards/OrderCards/Orders';
 
-//////////////////app styles////////////////
+////////app styles///////////////////
 import styles from './styles';
 import Colors from '../../../../utills/Colors';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
- 
-////////////////app redux///////////
-import { useSelector, useDispatch } from 'react-redux';
-import { setTheme } from '../../../../redux/actions';
 
+///////////////////map states//////////////////
+import MapView, { PROVIDER_GOOGLE,Polyline,Marker,AnimatedRegion  } 
+from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+import { MapKeyApi } from '../../../../utills/MapKey';
 
-//////////////////////////app api/////////////////////////
+////////////location function////////////////
+import { locationPermission,getCurrentLocation } from '../../../../api/CurrentLocation';
+
+///////////////////app images//////////////
+import { appImages } from '../../../../constant/images';
+
+////////////////api////////////////
 import axios from 'axios';
 import { BASE_URL } from '../../../../utills/ApiRootUrl';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-////////////////////app images/////////////////
-import { appImages } from '../../../../constant/images';
+////////////////////////tOKEN IDS/////////////
+import { Guest_DeviceToken } from '../../../../utills/ApiRootUrl';
 
+const screen = Dimensions.get('window');
+const ASPECT_RATIO = screen.width / screen.height;
+const LATITUDE_DELTA = 0.08;
+const LONGITUDE_DELTA =LATITUDE_DELTA * ASPECT_RATIO;
 
-const TripRoute = ({navigation}) => {
+const TripRoute = ({ navigation,route }) => {
 
-  ////////////////////redux/////////////////////
-  const { theme ,maptheme} = useSelector(state => state.userReducer);
-  const dispatch = useDispatch();  
+  //previous data
+  const[previousdata]=useState(route.params)
+  console.log('orderid:',route.params)
 
-          //////////locationtype state/////////////
-          const refRBSheet = useRef();  
+  /////////////timer state///////////////
+  const [disabletimer, setdisableTimer] = useState(false);
 
-              
-      //Modal States
-      const [modalVisible, setModalVisible] = useState(false);
-      const [modalVisible1, setModalVisible1] = useState(false);
-      const [modalVisible2, setModalVisible2] = useState(false);
+         ///////////////Modal States///////////////
+         const [modalVisible, setModalVisible] = useState(false);
+  
+  //////////time function//////////
+  const children = ({ remainingTime }) => {
+    const minutes = Math.floor(remainingTime / 60)
+    const seconds = remainingTime % 60
+  
+    return `${minutes}:${seconds}`
+  }
 
-    ////////////isfocused//////////
-    const isfocussed = useIsFocused()
+  ///////////////////map/////////////////////
+  const mapRef = useRef()
+  const markerRef = useRef()
+  const ref = useRef();
+    const [state, setState] = useState({
+        curLoc: {
+          latitude:    previousdata.driverLat,
+          longitude:  previousdata.driverLng,
+          // latitude:    previousdata.pickupLat,
+          // longitude:  previousdata.pickupLng,
+            // latitude: 33.6491,
+            // longitude: 73.0833,
+        },
+        destinationCords: {
+          latitude:    previousdata.pickupLat,
+          longitude:  previousdata.pickupLng,
+          // latitude: 33.6844,
+          // longitude: 73.0479,
+          // latitude:    previousdata.dropoffLat,
+          // longitude:  previousdata.dropoffLng,
+        },
+        isLoading: false,
+        coordinate: new AnimatedRegion({
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA
+        }),
+        time: 0,
+        distance: 0,
+        heading: 0
 
+    })
 
-    //////////////////////map default location///////////////////
-    const defaultlocation =()=>{
-      //setuserloc(true)
-      setPinLat(56.002716)
-      setPinLog(-4.580081)
-      setusercurrloc(false)
+    const { curLoc, time, distance, destinationCords, isLoading, coordinate,heading } = state
+    const updateState = (data) => setState((state) => ({ ...state, ...data }));
 
+    const animate = (latitude, longitude) => {
+      const newCoordinate = { latitude, longitude };
+      if (Platform.OS == 'android') {
+          if (markerRef.current) {
+              markerRef.current.animateMarkerToCoordinate(newCoordinate, 1000);
+          }
+      } else {
+          coordinate.timing(newCoordinate).start();
+      }
+  }
+
+const getLiveLocation = async () => {
+  const locPermissionDenied = await locationPermission()
+  if (locPermissionDenied) {
+      const { latitude, longitude, heading } = await getCurrentLocation()
+      console.log("get live location after 4 second",heading)
+      animate(latitude, longitude);
+      updateState({
+          heading: heading,
+          curLoc: { latitude, longitude },
+          coordinate: new AnimatedRegion({
+              latitude: latitude,
+              longitude: longitude,
+              latitudeDelta: LATITUDE_DELTA,
+              longitudeDelta: LONGITUDE_DELTA
+          })
+      })
+  }
+}
+
+const  handlePin = () =>
+{
+    return (
+        <View>
+            <ImageBackground source={appImages.Camera} 
+            style={{height: 30, width:30 }}>
+                <Text style={{paddingBottom:25}}>Hello</Text>
+            </ImageBackground>
+        </View>
+        )
+}
+const fetchTime = (d, t) => {
+  updateState({
+      distance: d,
+      time: t
+  })
+}
+
+/////////////////////Call to Guest Function/////////////////
+const callNumber = phone => {
+  console.log('callNumber ----> ', phone);
+  let phoneNumber = phone;
+  if (Platform.OS !== 'android') {
+    phoneNumber = `telprompt:${phone}`;
+  }
+  else  {
+    phoneNumber = `tel:${phone}`;
+  }
+  Linking.canOpenURL(phoneNumber)
+  .then(supported => {
+    if (!supported) {
+      Alert.alert('Phone number is not available');
+    } else {
+      return Linking.openURL(phoneNumber);
     }
-
-  let mapIndex = 0;
-  let mapAnimation = new Animated.Value(0);
-
-
-  const _map = React.useRef(null);
-
-  /////////////map states////////////
-  const [mapmargin, setMapMargin]=useState(1)
-    const [eror, setError]=useState()
-const [region, setRegion] = useState();
-const [marker, setMarker] = useState();
-const [pinlat, setPinLat] = useState(56.002716);
-const [pinlog, setPinLog] = useState(-4.580081);
-const [userloc, setuserloc] = useState(false);
-
-
-////////////////usercurrrent location///////////
-const [usercurrloc, setusercurrloc] = useState(false);
-
-////////////////All location///////////
-const [allloc, setAllloc] = useState(false);
-
-/////////////user current location////////////////
-const GetcurrLocation=()=>{
-  Geocoder.init(MapKeyApi); 
-  Geolocation.getCurrentPosition(
-                  (position) => {
-                    setPinLat(position.coords.latitude)
-                    setPinLog(position.coords.longitude)
-                  setRegion({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    latitudeDelta: 0.0462,
-                    longitudeDelta: 0.0261,
-                  });
-                  console.log('map regions:',region)
-                  setMarker({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                  });
-                      Geocoder.from(position.coords.latitude,
-                         position.coords.longitude)
-                          .then(json => {
-                              console.log(json);
-      var addressComponent = json.results[0].address_components;
-                          })
-
-                          .catch(error => console.warn(error));
-                  },
-                  (error) => {
-                      // See error code charts below.
-                  
-                              setError(error.message)
-                     
-                          console.log(error.code, error.message);
-                  },
-                  {
-                      enableHighAccuracy: false,
-                      timeout: 10000,
-                      maximumAge: 100000
-                  }
-              );
-}
-useEffect(() => {
-  if (isfocussed) {
-GetLocation()
-GetUser()
-}
-
-  },[isfocussed]);
-//////////////// location data state///////////
-const [pinsdata, setPinsdata] = useState();
-  //////////////Api Calling////////////////////
-const GetLocation=async() => {
-  console.log('here',BASE_URL+'location/getAllLocations')
-  axios({
-  method: 'GET',
-  url: BASE_URL+'location/getAllLocations',
   })
-  .then(async function (response) {
-  console.log("response here in LOCATION", JSON.stringify(response.data.data))
-  setPinsdata(response.data.data)
-      //navigation.navigate('Drawerroute')
-  })
-  .catch(function (error) {
-  if(error)
-  {     console.log('Email or Password is incorrect')}
-  //setModalVisible(true)
-  
-  console.log("error", error)
-  })
-  }
-//////////////// location data state///////////
-const [ParkingDetail, setParkingDetail] = useState();
-const [ParkingID, setParkingID] = useState();
-const [ParkingTime, setParkingTime] = useState();
-const [count, setcount] = useState(1);
-//const count =0
-  //////////////Api Calling////////////////////
-const GetUser=async() => {
-  var user= await AsyncStorage.getItem('Userid')
-  console.log("userid:",user,count)
-  axios({
-  method: 'GET',
-  url: BASE_URL+'user/getUser/'+user,
-  })
-  .then(async function (response) {
-  console.log("response here in get useer detail", JSON.stringify(response.data))
-  setParkingDetail(response.data.userDetails[0].user_parkings[0].isParked)
-  //setParkingDetail(response.data.userDetails[0].user_parkings)
-  setParkingID(response.data.userDetails[0].user_parkings[0]._id)
-  setParkingTime(response.data.userDetails[0].user_parkings[0].parkTime)
-  })
-  .catch(function (error) {
-  if(error)
-  {     console.log('Email or Password is incorrect')}
-  //setModalVisible(true)
-  
-  console.log("error", error)
-  })
-  }
+  .catch(err => console.log(err));
+};
 
+////////////////////Notificatioon statechanges//////////////
+const[arrived,setArrived]=useState(false)
+        //////////////////////Notification/////////////////
+        const GuestSendNotification = async (props) => {
+          console.log('here:')
+          var data = JSON.stringify({
+            "registration_ids": [
+              GuestToken
+            ],
+            "data":{
+             "type":"TripCompleted"
+            },
+            "notification": {
+              "title": DriverName+" arrived on your location, "+ "trip no:"+OrderNo,
+              "body": "HalaGuest",
+              "mutable_content": true,
+              "sound": "Tri-tone",
+              "color": "purple"
+            }
+          });
+          
+          var config = {
+            method: 'post',
+            url: 'https://fcm.googleapis.com/fcm/send',
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': Guest_DeviceToken
+            },
+            data : data
+          };
+          
+          axios(config)
+          .then(function (response) {
+            console.log(JSON.stringify(response.data));
+            setArrived(true)
+            setdisableTimer(true)
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+            };
+  useEffect(() => {
+    GetOrderDetail()
+    ref.current?.setAddressText('Rawalpindi');
+  const interval = setInterval(() => {
+   getLiveLocation()
+   // GetOrderDetail()
+}, 1000);
+return () => clearInterval(interval)
 
-  return (
-      <View style={[styles.container,{marginBottom:mapmargin, backgroundColor: theme === false? 'white':'  black'}]}>
-        <MapView
-        ref={_map}
-          style={[styles.mapStyle,{marginBottom:mapmargin}]}
-         provider={PROVIDER_GOOGLE} // remove if not using Google Maps 
-          onMapReady={()=> { setMapMargin(0)} }
-          onRegionChange ={() => setuserloc(true)}
-          onRegionChangeComplete={
-            _map.current?.animateToRegion({
-              latitude: pinlat,
-              longitude: pinlog,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-              //duration: 1
-            })
-       
-          } 
-          initialRegion={      {
-            latitude: pinlat,
-            longitude: pinlog,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          onLayout={()=>{
-            _map.current.fitToCoordinates({latitude: pinlat, longitude: pinlog})
-          }}
-     
-        >
-                  {allloc === true?
-                  pinsdata.map((marker, index) => {
-          return (
+  }, []);
+  //order detail data states and apin function
+const [GuestToken,setGuestToken]=useState('')
+const [HotelToken,setHotelToken]=useState('')
+const [GuestId,setGuestId]=useState('')
+const [GuestName,setGuestName]=useState('')
+const [GuestPic,setGuestPic]=useState('')
+const [GuestNo,setGuestNo]=useState('')
+const [Driverpic, setDriverPic] = useState('');
+const [DriverName, setDriverName] = useState('');
+const [DriverCar, setDriverCar] = useState('');
+const [OrderNo, setOrderNo] = useState('');
+const [orderid, setOrderId] = useState('');
+const [PickupLocation, setPickupLocation] = useState('');
+const [DropoffLocation, setDropoffLocation] = useState('');
+const [PickupLat, setPickupLat] = useState('');
+const [PickupLng, setPickupLng] = useState('');
+const [DropoffLat, setDropoffLat] = useState('');
+const [DropoffLng, setDropoffLng] = useState('');
+const [OrderStatus, setOrderStatus] = useState('');
+
+const GetOrderDetail = async () => {
+  console.log('order request function');
+  await axios({
+    method: 'GET',
+    url: BASE_URL + 'api/Order/specificOrder/' + route.params.orderid,
+  })
+    .then(function (response) {
+      console.log('response', JSON.stringify(response.data));
+      setGuestId(response.data[0].guest_id._id)
+      setGuestName(response.data[0].guest_id.name)
+      setGuestPic(response.data[0].guest_id.img)
+      setGuestNo(response.data[0].guest_id.phoneno)
+      setDriverPic(response.data[0].driver_id.img)
+      setDriverName(response.data[0].driver_id.name);
+      setDriverCar(response.data[0].driver_id.vehicle_detail_id[0].make);
+      setPickupLocation(response.data[0].pickup_location);
+      setDropoffLocation(response.data[0].dropoff_location);
+      setPickupLat( Number(response.data[0].pickup_lat));
+      setPickupLng( Number(response.data[0].pickup_log));
+      setDropoffLat(response.data[0].dropoff_lat);
+      setDropoffLng(response.data[0].dropoff_log);
+      setOrderStatus(response.data[0].status);
+      setOrderNo(response.data[0].orderNo);
+      setOrderId(response.data[0]._id);
+      setHotelToken(response.data[0].guest_id.hotel_id[0].device_token)
+      setGuestToken(response.data[0].guest_id.device_token)
+    })
+    .catch(function (error) {
+      console.log('error', error);
+    });
+};
+
+const Timer=()=>{
+  return(
+  //   <CountDown
+  //   until={60 * 10 + 30}
+  //   size={20}
+  //   onFinish={() => alert('Finished')}
+  //   digitStyle={{backgroundColor: '#FFF'}}
+  //   digitTxtStyle={{color: '#1CC625'}}
+  //   timeToShow={['M', 'S']}
+  //   timeLabels={{m: 'MM', s: 'SS'}}
+  // />
+    <CountdownCircleTimer
+    size={50}
+    strokeWidth={0}
+    children ={children}
+        isPlaying
+        duration={7}
+        initialRemainingTime={10}
+        colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+        colorsTime={[7, 5, 2, 0]}
+        onComplete={() => {
+          setdisableTimer(false)
+          setModalVisible(true)
+          //setArrived(false)
+          // do your stuff here
+          //return { shouldRepeat: true, delay: 1.5 } // repeat animation in 1.5 seconds
+        }}
+      >
+    
+        {({ remainingTime }) =>
         
-            <Marker key={index} 
-            coordinate={
-              {      
-                      latitude: marker.location.coordinates[0],
-                      longitude: marker.location.coordinates[1]
-            }}
-            //coordinate={location.coordinates} 
-           // onPress={(e)=>onMarkerPress(e)}
-           >
- 
-            </Marker>
- 
-          );
-        }):null}
-                    {marker != ''?
-                  <Marker
-                  draggable={true}
-                  coordinate={
-                    {      
-                    latitude: pinlat,
-                    longitude: pinlog
-                  }}
-                    title={'title'}
-                    description={'here'}
-                    onDragStart={(e)=>
-                      console.log('Darg Start:',e.nativeEvent.coordinate)}
-                      onDragEnd={(e)=>
-                       { console.log('Darg Start:',e.nativeEvent.coordinate),
-                       setPinLat(e.nativeEvent.coordinate.latitude)
-                       setPinLog(e.nativeEvent.coordinate.longitude)
-                        console.log('Darg Start:',pinlat,pinlog)}
-                      }
-                  />
-                  :
-                  null
-                }
-        </MapView>
+        <Text style={{color:'black',fontSize:hp(2)}}>{remainingTime}(s)</Text>}
+      </CountdownCircleTimer>
+  )
+}
+  return (
+
+<View style={[styles.container]}>
+{previousdata.pickupLat && previousdata.pickupLng > 0 ? 
+ <MapView
+     ref={mapRef}
+  provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+  style={styles.map}
+  initialRegion={{
+    ...curLoc,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA,
+}}
+  // region={{
+  //   // latitude:  previousdata.pickupLocation.coordinates.latitude,
+  //   // longitude:  previousdata.pickupLocation.coordinates.longitude,
+  //   // latitudeDelta: 0.015,
+  //   // longitudeDelta: 0.0121,
+  //   latitude: 37.78825,
+  //   longitude: -122.4324,
+  //   latitudeDelta: 0.015,
+  //   longitudeDelta: 0.0121,
+  // }}
+  >
+
+<Marker.Animated
+                        ref={markerRef}
+                        coordinate={
+                          //coordinate
+                          curLoc
+                        }
+                    >
+                        <Image
+                            source={appImages.car}
+                            style={{
+                                width: 40,
+                                height: 40,
+                                //transform: [{rotate: `${heading}deg`}]
+                            }}
+                            resizeMode="contain"
+                        />
+                    </Marker.Animated>
+                    {Object.keys(destinationCords).length > 0 && (<Marker
+                        coordinate={destinationCords}
+                        image={appImages.orangeloc}
+                    />)}
+
+{Object.keys(destinationCords).length > 0 && (<MapViewDirections
+                        origin={curLoc}
+                        destination={destinationCords}
+                        apikey={MapKeyApi}
+                        strokeWidth={3}
+                        strokeColor="black"
+                        optimizeWaypoints={true}
+                        onStart={(params) => {
+                            console.log(`Started routing between "${params.origin}" 
+                            and "${params.destination}"`);
+                        }}
+                        onReady={result => {
+                            console.log(`Distance: ${result.distance} km`)
+                            console.log(`Duration: ${result.duration} min.`)
+                            fetchTime(result.distance, result.duration),
+                                mapRef.current.fitToCoordinates(result.coordinates, {
+                                    edgePadding: {
+                                        // right: 30,
+                                        // bottom: 300,
+                                        // left: 30,
+                                        // top: 100,
+                                    },
+                                });
+                        }}
+                        onError={(errorMessage) => {
+                            // console.log('GOT AN ERROR');
+                        }}
+                    />)}
+
+</MapView>
+:null}
         <View style={{marginLeft:wp(3),marginTop:hp(2),marginBottom:hp(1)}}>
         <Ionicons name={'chevron-back'} size={30} 
           color= {Colors.Appthemeorangecolor}
@@ -268,51 +396,58 @@ const GetUser=async() => {
         <View style={{alignItems:'center'}}>
 <OrdersCards
 navplace={'trip'}
-                                       pickupLoc={'pickup'}
-                                       dropoffLoc={'dropoff'}
+                                       pickupLoc={PickupLocation}
+                                       dropoffLoc={DropoffLocation}
                                    />
     
     </View>
       <View
-style={styles.lastView}
+style={[styles.lastView]}
       > 
       <View style={{backgroundColor:'white',
-      height:hp(27),paddingTop:hp(2),
+      height:hp(32),paddingTop:hp(2),
     width:wp(100)}}>
 
       <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:hp(2),
       marginHorizontal:wp(5)}}>
       <View style={{flexDirection:'row',alignItems:'center',marginHorizontal:wp(1)}}>
           <Image
-                    source={appImages.ProfileUser}
+                    //source={appImages.ProfileUser}
+                    source={{uri:BASE_URL+Driverpic}}
                     style={styles.image}
                     resizeMode='contain'
                   />
                   <View style={{marginLeft:wp(3)}}>
                   <Text 
               style={styles.drivertext}
-                >Driver name here</Text>
+                >{DriverName}</Text>
                           <Text 
               style={styles.vehicletext}
-                >HONDA XLI </Text>
+                >{DriverCar}</Text>
                   </View>
                   
           </View>
-                  <TouchableOpacity onPress={()=> navigation.navigate('TripCompleted')}
-          style={[styles.trackbtn]}>
-                      <Text 
-              style={styles.tracktext}
-                >Track Ride</Text>
-      </TouchableOpacity>
-      
+          {
+          arrived === false ? null:
+                            <TouchableOpacity onPress={()=> navigation.navigate('TripCompleted',{orderid:orderid,
+                              pickupLat:PickupLat,pickupLng:PickupLng,
+                              dropoffLat:DropoffLat,dropoffLng:DropoffLng,
+                              navplace:'ongoing'})}
+                            style={[styles.trackbtn]}>
+                                        <Text 
+                                style={styles.tracktext}
+                                  >Start Ride</Text>
+                        </TouchableOpacity>
+          }
           </View>
           <View style={{borderBottomColor:'#DCDCDC',borderBottomWidth:1,width:wp(85),alignSelf:'center',marginBottom:hp(4),marginTop:(3)}}></View>
           <View style={{flexDirection:'row',justifyContent:'space-between',marginHorizontal:wp(5)}}>
-          <TouchableOpacity onPress={()=> refRBSheet.current.open()}
+          <TouchableOpacity onPress={()=>  callNumber(GuestNo)}
           style={[styles.tripbtn,{backgroundColor:Colors.BottomTabcolor}]}>
                 <Ionicons name={'call'} size={23} 
           color= {'white'}
-          onPress={() =>{}
+          onPress={() =>
+          callNumber(GuestNo)
           // refRBSheet.current.open()
            }/>
                       <Text 
@@ -320,7 +455,7 @@ style={styles.lastView}
                 >CALL</Text>
       </TouchableOpacity>
       <TouchableOpacity 
-      //onPress={()=> refRBSheet.current.open()}
+      onPress={()=> navigation.navigate('ChatScreen',{userid:GuestId,username:GuestName,userpic:GuestPic,orderId:orderid,navplace:'Trip'})}
        style={styles.tripbtn}>
             <Ionicons name={'chatbubbles-sharp'} size={23} 
           color= {'white'}
@@ -331,51 +466,49 @@ style={styles.lastView}
                       <Text 
               style={styles.triptext}
                 >CHAT</Text>
+
       </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{marginTop:hp(2),alignItems:'center'}}
+
+          <View style={{marginHorizontal:wp(5),marginTop:hp(2)}}>
+          {
+          arrived === true && disabletimer===true ?
+         <Timer/>
+            :
+            null}
+            {arrived === true?null: <TouchableOpacity onPress={()=>GuestSendNotification()}
+       style={[styles.tripbtn,{backgroundColor:Colors.Appthemecolor,width:wp(70),alignSelf:'center'}]}>
+                      <Text 
+              style={styles.triptext}
+                >I have Arrived</Text>
+      </TouchableOpacity>}
+     
+          </View>
+
+          {/* <TouchableOpacity style={{marginTop:hp(2),alignItems:'center'}}
           onPress={()=>{setModalVisible(true)}}
           >
          <Text 
               style={[styles.canceltext,{color:'red'}]}
-                >Cancle Trip</Text>
+                >I have Arrived</Text>
           </TouchableOpacity>
-  
+   */}
 
       </View>
       </View>
-      <CustomModal 
+      <WaitingModal 
                 modalVisible={modalVisible}
                 CloseModal={() => setModalVisible(false)}
                 Icon={appImages.ExclaimCircle}
-                text={'You can only cancel trip within 60 minutes'}
+                text={'You have not started a trip'}
                 leftbuttontext={'CANCLE'}
-                rightbuttontext={'OK'}
- onPress={()=> {setModalVisible(false),setModalVisible1(true)}}
+                rightbuttontext={'Wait More'}
+ onPress={()=> {setModalVisible(false),Timer(),setdisableTimer(true)}}
                 /> 
-                     <ReasonModal 
-                modalVisible={modalVisible1}
-                CloseModal={() => setModalVisible1(false)}
-                Icon={appImages.ExclaimCircle}
-                text={'You can only cancel trip within 60 minutes'}
-                leftbuttontext={'CANCLE'}
-                rightbuttontext={'SUBMIT'}
- onPress={()=> {setModalVisible1(false),setModalVisible2(true)}}
-                /> 
-                      <CustomModal 
-                modalVisible={modalVisible2}
-                CloseModal={() => setModalVisibl2e(false)}
-                Icon={appImages.CheckCircle}
-                text={'Reason Submitted'}
-                leftbuttontext={'CANCLE'}
-                rightbuttontext={'OK'}
- onPress={()=> {setModalVisible2(false)}}
-                /> 
-      </View>
+</View>
 
 
-  );
+  )
 };
- 
-export default TripRoute;
 
+export default TripRoute;

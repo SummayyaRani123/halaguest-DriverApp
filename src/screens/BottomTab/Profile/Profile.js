@@ -3,8 +3,8 @@ import {
     View,  Text,  TouchableOpacity,   StatusBar,  ScrollView,
 } from 'react-native';
 
-/////////////////////app icons//////////////////////
-import Icon from 'react-native-vector-icons/Ionicons';
+///////////////////react native navigation///////////////
+import { useIsFocused } from '@react-navigation/native';
 
 ////////////////app components//////////////
 import OrdersCards from '../../../components/CustomCards/OrderCards/Orders';
@@ -27,25 +27,36 @@ import { appImages } from '../../../constant/images';
 
 const Profile = ({navigation}) => {
 
-            /////////////main menu status states/////////////
-            const [Orders, setOrders] = useState('')
-            const GetOrders = async () => {
-    
-                axios({
-                    method: 'GET',
-                    url: BASE_URL + 'api/Order/allOrders',
-                })
-                    .then(async function (response) {
-                        console.log("list data here ", response.data)
-                        setOrders(response.data)
-                    })
-                    .catch(function (error) {
-                        console.log("error", error)
-                    })
-                }
-        useEffect(() => {
-           // GetOrders()
-        }, []);
+    ////////////isfocused//////////
+    const isfocussed = useIsFocused()
+  
+    ///////////////data states////////////////////
+const [username, setUserName] = React.useState();
+const [userimage, setUserImage] = React.useState();
+const [useremail, setUseremail] = React.useState();
+const [usercity, setUsercity] = React.useState();
+const GetAcountDetail=async() => {
+var user= await AsyncStorage.getItem('Userid')
+await axios({
+method: 'GET',
+url: BASE_URL+'api/driver/specificDriver/'+user,
+})
+.then(function (response) {
+//console.log("response get here driver", JSON.stringify(response.data))
+setUserImage(response.data[0].img)
+setUserName(response.data[0].name)
+setUsercity(response.data[0].city)
+setUseremail(response.data[0].email)
+})
+.catch(function (error) {
+console.log("error", error)
+})
+}
+useEffect(() => {
+if (isfocussed) {
+GetAcountDetail()
+}
+}, [isfocussed]);
     return (
       <View style={styles.container}>
          
@@ -63,13 +74,19 @@ const Profile = ({navigation}) => {
         <View 
             style={[styles.footer]}
         >
-        
-                    <View style={{marginTop:hp(28),
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  showsHorizontalScrollIndicator={false}>
+                    <View style={{marginTop:hp(20),
                     marginBottom:hp(2)}}>
                {/* <SettingsMenu
        label={'Payment Details'}
        labelPress={()=>navigation.navigate('ViewPaymentDetail')}
        /> */}
+                          <SettingsMenu
+       label={'UpdateProfile'}
+       labelPress={()=>navigation.navigate('UpdateProfile')}
+       />
                   <SettingsMenu
        label={'Vehicle Details'}
        labelPress={()=>navigation.navigate('ViewVehicleDetail')}
@@ -78,24 +95,21 @@ const Profile = ({navigation}) => {
        label={'Document Details'}
        labelPress={()=>navigation.navigate('UpdateDocumentsDetail')}
        />
+     
+                  <SettingsMenu
+       label={'Contact Us'}
+      // labelPress={()=>navigation.navigate('UpdateDocumentsDetail')}
+       />
 
                     </View>
-     
-
-
+                  </ScrollView>
         </View>
         <View style={{position:'absolute',top:hp(10),alignItems:'center',alignSelf:'center'}}>
             <ProfileCard
-                               userlogo={require('../../../assets/dataimages/user.png')}
-                               username={'Username, Male'}
-                               usercity={'Chicago'}
-                               useremail={'example@gmail.com'}
-                               userdesc={'Lorem ipsum dolor sit amet,'+ 
-                              ' consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et '+
-                               'dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo '+
-                               'dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem '+
-                               'ipsum dolor sit amet. Lorem ipsum dolor sit amet, '+
-                               'consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna'}
+                             userlogo={{uri:BASE_URL+userimage}}
+                             username={username}
+                             usercity={usercity}
+                             useremail={useremail}
             />
           </View>
       </View>

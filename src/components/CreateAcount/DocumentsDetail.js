@@ -93,7 +93,8 @@ const navigation = useNavigation();
       .then(function (response) {
         console.log('response', JSON.stringify(response.data));
         dispatch(setDocumentsSubmitId(response.data.data._id))
-        setModalVisible(true)
+        updateDriverDetail((response.data.data._id))
+
       })
       .catch(function (error) {
         console.log('error', error);
@@ -102,7 +103,6 @@ const navigation = useNavigation();
 
     //////////////////////Api Calling/////////////////
     const DeleteImage = async (props) => {
-console.log('here in delete',props)
       axios({
         method: 'DELETE',
         url: BASE_URL + 'delete-image',
@@ -120,22 +120,20 @@ console.log('here in delete',props)
     };
 
       //////////////////////Api Calling/////////////////
-  const updateDriverDetail = async () => {
-console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
+  const updateDriverDetail = async (props) => {
+console.log('here ids',props)
     axios({
       method: 'PUT',
       url: BASE_URL + 'api/driver/updateDriver',
       data: {
         _id: driver_submit_id,
-        vehicle_detail_id: vehicle_submit_id,
-        doc_id: document_submit_id,
-        //payment_detail_id:payment_submit_id
+        doc_id: props,
       },
     })
       .then(function (response) {
         console.log('response', JSON.stringify(response.data));
-       setModalVisible(false),
-        navigation.navigate('BottomTab')
+        setModalVisible(true)
+       
       })
       .catch(function (error) {
         console.log('error', error);
@@ -435,7 +433,7 @@ console.log('here ids',vehicle_submit_id,payment_submit_id,document_submit_id)
                 text={'Account Verified Successfully'}
                 leftbuttontext={'CANCEL'}
                 rightbuttontext={'OK'}
- onPress={()=> {updateDriverDetail()}}
+ onPress={()=> { setModalVisible(false),navigation.navigate('BottomTab')}}
                 /> 
   
         <CamerBottomSheet

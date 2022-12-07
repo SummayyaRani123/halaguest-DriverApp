@@ -19,10 +19,6 @@ const appImages = {
   CheckCircle: require(IMAGES_DIR + 'Check.png'),
   ExclaimCircle: require(IMAGES_DIR + 'exclamation.png'),
 
-  ///////////////orders icons/////////////////
-  Schedule: require(IMAGES_DIR + 'timetable.png'),
-  Completed: require(IMAGES_DIR + 'checkmark.png'),
-
   //////////////////BottomTab images///////////////
   Trips: require(IMAGES_DIR + 'trips.png'),
   Transaction: require(IMAGES_DIR + 'transaction.png'),
@@ -31,5 +27,22 @@ const appImages = {
     NotiCheck: require(IMAGES_DIR + 'noticheck.png'),
     NotiCancel: require(IMAGES_DIR + 'noticancel.png'),
     NotiSchedule: require(IMAGES_DIR + 'notischedule.png'),
+
+//////////////////////chat/////////////
+chatsend: require(IMAGES_DIR + 'send.png'),
+Simely: require(IMAGES_DIR + 'smiley.png'),
+OnlineDot:require(IMAGES_DIR + 'dot.png'),
+
+  ///////////////orders icons/////////////////
+  Schedule: require(IMAGES_DIR + 'schedule.png'),
+  Completed: require(IMAGES_DIR + 'completed.png'),
+  Ongoing: require(IMAGES_DIR + 'ongoing.png'),
+  Cancel: require(IMAGES_DIR + 'cancel.png'),
+
+///////////////location icon////////////
+blueloc: require(IMAGES_DIR + 'bluelocicon.png'),
+orangeloc: require(IMAGES_DIR + 'orangelocicon.png'),
+car: require(IMAGES_DIR + 'car.png'),
+
 };
 export {appImages};

@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 /////////////////navigation//////////////
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused,useNavigation } from '@react-navigation/native';
 
 ////////////paper papkage///////////////
 import {RadioButton,Snackbar} from 'react-native-paper';
@@ -51,17 +51,23 @@ import { appImages } from '../../constant/images';
 
 // Import Map and Marker
 import Geocoder from 'react-native-geocoding';
-import Geolocation from '@react-native-community/geolocation';
 import { MapKeyApi } from '../../utills/MapKey';
 
-const AccountDetail = ({navigation}) => {
+////////////currrent location function/////////////
+import { locationPermission,getCurrentLocation } from '../../api/CurrentLocation';
+import { checkPermission } from '../../api/FCMToken';
+
+const AccountDetail = () => {
+
+  /////////////////navigation///////////////////
+const navigation = useNavigation();
 
       ////////////isfocused//////////
       const isfocussed = useIsFocused()
 
   /////////////////////////redux///////////////////
-  const {login_user_id, phone_no,user_image ,country_name,state_name,city_name,dispatcher,dispatcher_id
-  } =
+  const {login_user_id, phone_no,user_image ,country_name,state_name,city_name,dispatcher,dispatcher_id,
+    location_address,location_lng, location_lat} =
     useSelector(state => state.userReducer);
   const dispatch = useDispatch();
 
@@ -76,9 +82,6 @@ const AccountDetail = ({navigation}) => {
   
   //camera and imagepicker
   const refRBSheet = useRef();
-
-  //Modal States
-  const [modalVisible, setModalVisible] = useState(false);
 
   /////////TextInput References///////////
   const ref_input2 = useRef();
@@ -100,19 +103,7 @@ const AccountDetail = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [zipcode, setZipcode] = useState('');
   const [street_address, setStreet_address] = useState('');
-
- ///////////email//////////////////
- const handleValidEmail = (val) => {
-  let reg = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w\w+)+$/;
-  if (reg.test(val)) {
-      console.log('true')
-      return true;
-  }
-  else {
-      console.log('falsse')
-      return false;
-  }
-}
+  const[FCMToken,setFCMToken]=useState()
 
   //////////////////////Api Calling/////////////////
   const CreateAcount = async () => {
@@ -138,13 +129,10 @@ const AccountDetail = ({navigation}) => {
         created_at: date,
         dispacher_id: dispatcher_id,
         status: 'block',
-        device_token: '354ref',
-        // driver_location:address,
-        // driver_lat: pinlat,
-        // driver_log: pinlog 
-        driver_location: 'Pir Mehr Ali Shah Arid Agriculture University - PMAS AAUR, Shamsabad, Muree، Road, Punjab، Rawalpindi, 46000',
-        driver_lat: '33.601920',
-        driver_log: '73.038080',
+        device_token: FCMToken,
+        driver_location:location_address,
+        driver_lat: location_lat,
+        driver_log: location_lng, 
       },
     })
       .then(function (response) {
@@ -162,61 +150,50 @@ const AccountDetail = ({navigation}) => {
   };
 
 ///////////////////map states//////////
-    const [eror, setError]=useState()
-const [region, setRegion] = useState();
-const [marker, setMarker] = useState('');
-const [pinlat, setPinLat] = useState();
-const [pinlog, setPinLog] = useState();
-const [address, setAddress] = useState();
+const [driver_lat, setDriver_lat] = useState();
+const [driver_log, setDriver_log] = useState();
+const [driver_location, setDriver_location] = useState();
 
-/////////////user current location////////////////
-const GetcurrLocation=()=>{
-  Geocoder.init(MapKeyApi); 
-  Geolocation.getCurrentPosition(
-                  (position) => {
-                    setPinLat(position.coords.latitude)
-                    setPinLog(position.coords.longitude)
-                  setRegion({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    latitudeDelta: 0.0462,
-                    longitudeDelta: 0.0261,
-                  });
-                  console.log('map regions:',region)
-                  setMarker({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                  });
-                      Geocoder.from(position.coords.latitude,
-                         position.coords.longitude)
-                          .then(json => {
-                              console.log(json);
-      var addressComponent = json.results[0].address_components;
-       setAddress(addressComponent)
-                          })
-                         
-                          .catch(error => console.warn(error));
-                  },
-                  (error) => {
-                      // See error code charts below.
-                  
-                              setError(error.message)
-                     
-                          console.log(error.code, error.message);
-                  },
-                  {
-                      enableHighAccuracy: false,
-                      timeout: 10000,
-                      maximumAge: 100000
-                  }
-              );
+const getLiveLocation = async () => {
+Geocoder.init(MapKeyApi); 
+const locPermissionDenied = await locationPermission()
+if (locPermissionDenied) {
+    const { latitude, longitude, heading } = await getCurrentLocation()
+    console.log("get live location after 4 second",latitude,longitude,heading)
+    setDriver_lat(latitude)
+    setDriver_log(longitude)
+    Geocoder.from(latitude,
+      longitude)
+       .then(json => {
+var addressComponent = json.results[0].formatted_address;
+console.log('address here:',addressComponent);
+setDriver_location(addressComponent)
+       })
+}
 }
 useEffect(() => {
   if (isfocussed) {
-    GetcurrLocation()
+    getLiveLocation()
+    checkPermission().then(result => {
+      console.log("here in google password",result);
+      setFCMToken(result)
+      //do something with the result
+    })
 }
-console.log('locatrion coord Here',pinlat,pinlog,address)
+
   },[isfocussed]);
+ ///////////email//////////////////
+ const handleValidEmail = (val) => {
+  let reg = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w\w+)+$/;
+  if (reg.test(val)) {
+      console.log('true')
+      return true;
+  }
+  else {
+      console.log('falsse')
+      return false;
+  }
+}
 
   //////////////////////// API forms validations////////////////////////
   const AcountValidation = async () => {
@@ -246,7 +223,7 @@ console.log('locatrion coord Here',pinlat,pinlog,address)
       setVisible('true');
     }
  
-    else if (street_address == '') {
+    else if (location_address == '') {
       setsnackbarValue({value: 'Please Enter Street Address', color: 'red'});
       setVisible('true');
     }
@@ -380,11 +357,6 @@ console.log('locatrion coord Here',pinlat,pinlog,address)
                 <TextInput
                   ref={ref_input5}
                   onChangeText={setZipcode}
-                  returnKeyType={'next'}
-                  onSubmitEditing={() => {
-                    ref_input6.current.focus();
-                  }}
-                  blurOnSubmit={false}
                   placeholderTextColor={Colors.inputtextcolor}
                   style={Inputstyles.input}
                   keyboardType={'number-pad'}
@@ -392,14 +364,20 @@ console.log('locatrion coord Here',pinlat,pinlog,address)
               </View>
       
               <Text style={Inputstyles.inputtoptext}>Street Address</Text>
+              <TouchableOpacity onPress={()=>navigation.navigate('Location',{navplace:'CreateAccount'})}>
               <View style={Inputstyles.action}>
                 <TextInput
-                  ref={ref_input6}
+              value={location_address}
                   onChangeText={setStreet_address}
                   placeholderTextColor={Colors.inputtextcolor}
                   style={Inputstyles.input}
+                  multiline={true}
+                  maxLength={200}
+                  numberOfLines={2.5}
+                  editable={false}
                 />
               </View>
+              </TouchableOpacity>
               <Text style={Inputstyles.inputtoptext}>Gender</Text>
               <View
                 style={{

@@ -27,7 +27,7 @@ import Home from '../../screens/BottomTab/Home/Dashboard';
 import Orders from '../../screens/BottomTab/Orders/Orders';
 import Transaction from '../../screens/BottomTab/Transaction/Transaction';
 import Profile from '../../screens/BottomTab/Profile/Profile';
-
+import Rattings from '../../screens/StackScreens/Rattings/Rattings';
 
 
 function BottomTab() {
@@ -95,6 +95,7 @@ function BottomTab() {
             {/* <Ionicons name="cart" color={!focused ? 'grey' :'white'} size={25} /> */}
             <IconButton
                 icon={appImages.Trips}
+                color={!focused ? 'grey':'white'}
                 iconColor={ !focused ? 'grey':'white'}
                 style={{backgroundColor: focused ? null:'white',color:"red"}}
                 size={30}
@@ -110,29 +111,25 @@ function BottomTab() {
             </View>
           ),
         }} />
-                <Tab.Screen name="Transaction" component={Transaction}
+                {/* <Tab.Screen name="Rattings" component={Rattings}
         options={{
           headerShown: false,
 
           tabBarIcon: ({ color, focused }) => (
             <View style={style.maintabview}>
             <View style={[style.tab, focused ? style.selectedTab : null]}>
-            {/* <Ionicons name="person" color={!focused ? 'grey' :'white'} size={25} /> */}
             <IconButton
                 icon={appImages.Transaction}
+                color={!focused ? 'grey':'white'}
                 iconColor={ !focused ? 'grey':'white'}
                 style={{backgroundColor: focused ? null:'white',color:"red"}}
                 size={30}
               />
-               {/* <Image
-                        source={appImages.Camera}
-                        style={{ width: wp(6), height: hp(3.5)}}
-                      /> */}
             </View>
             <Text style={style.tabtextcolor}>{!focused ?null:'Transaction'}</Text>
             </View>
           ),
-        }} />
+        }} /> */}
            <Tab.Screen name="Profile" component={Profile}
         options={{
           headerShown: false,
@@ -141,10 +138,6 @@ function BottomTab() {
             <View style={style.maintabview}>
             <View style={[style.tab, focused ? style.selectedTab : null]}>
             <Ionicons name="person" color={!focused ? 'grey' :'white'} size={25} />
-               {/* <Image
-                        source={appImages.Camera}
-                        style={{ width: wp(6), height: hp(3.5)}}
-                      /> */}
             </View>
             <Text style={style.tabtextcolor}>{!focused ?null:'Profile'}</Text>
             </View>

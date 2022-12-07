@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
           fontSize:hp(2),
           color:'#303030',
           fontFamily: fontFamily.Poppins_Regular,
-          textAlign:'center'
+          textAlign:'center',
+          width:wp(70)
       },
       modalsubtext:
       { 
@@ -118,6 +119,60 @@ const styles = StyleSheet.create({
             },
           
 
+            ///////////////time selector//////////////
+            card:
+{
+  borderColor:'rgba(0, 0, 0, 0.2)',
+  borderBottomWidth: 1,
+ width: wp(50),
+ marginHorizontal:wp(5),
+ alignItems:'center'
+},
+cardtext:
+{
+  color:'black', 
+  marginBottom:hp(2),
+  marginTop:hp(2),
+   fontFamily:'Poppins',
+   fontSize:hp(2),
+    color:"grey",
+},
+
+///////////////////////////wait modal///////////////////
+WaitView:
+{
+  height: hp(6),
+  width: wp(33),
+   alignSelf:'flex-end',
+   alignItems:'center',
+   justifyContent:'center',
+   marginBottom:hp(2.5),
+   marginHorizontal:wp(10),
+},
+leftview:{
+  // height: hp(6),
+  // width: wp(33),
+  backgroundColor:Colors.Appthemeorangecolor
+},
+rightview:{
+  // height: hp(6),
+  // width: wp(33),
+  backgroundColor:'red'
+},
+waitleftbtntext:
+{
+   
+    color:'#6B6B6B',
+    fontSize:hp(2),
+    fontFamily:fontFamily.Poppins_Regular,
+},
+waitrightbtntext:
+{
+
+    color:Colors.Appthemecolor,
+    fontSize:hp(2),
+    fontFamily:fontFamily.Poppins_SemiBold
+},
   });
   export default styles;
   

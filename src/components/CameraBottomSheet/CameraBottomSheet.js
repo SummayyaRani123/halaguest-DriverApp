@@ -42,7 +42,7 @@ const CamerBottomSheet = (props) => {
       cropping: true,
       compressImageQuality: 0.7,
     }).then(image => {
-      props.refRBSheet.current.close();
+ 
       console.log(image);
       setImage(image.path);
       let newfile = {
@@ -51,6 +51,7 @@ const CamerBottomSheet = (props) => {
         name: image.path.substring(image.path.lastIndexOf('/') + 1),
       };
       Uploadpic(newfile);
+      props.refRBSheet.current.close();
     });
   };
   ////////////////////library image//////////////////
@@ -61,7 +62,7 @@ const CamerBottomSheet = (props) => {
       cropping: true,
       compressImageQuality: 0.7,
     }).then(image => {
-      props.refRBSheet.current.close();
+   
       console.log(image);
       setImage(image.path);
       let newfile = {
@@ -71,6 +72,7 @@ const CamerBottomSheet = (props) => {
       };
  
       Uploadpic(newfile);
+      props.refRBSheet.current.close();
     });
   };
   const [selectedimage, setselectedimage] = useState(false);
